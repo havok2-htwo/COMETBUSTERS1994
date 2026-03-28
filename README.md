@@ -223,9 +223,6 @@ Background music is loaded from `assets/audio/music/`. Currently supported forma
 
 If no music files are found, the game will seamlessly continue without background music.
 
-### Note on older documentation leftovers
-
-Older notes in `AUDIO_FILES.txt` or `assets/audio/README.md` belong to an earlier iteration using `sounds/...`. For this build, `assets/audio/...` is the definitive path.
 
 ## Persistence
 
