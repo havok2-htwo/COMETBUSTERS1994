@@ -1,3 +1,5 @@
+import { t } from "./i18n.js";
+
 export const STORAGE_KEYS = {
   settings: "cometbusters.settings.v1",
   highscores: "cometbusters.highscores.v1",
@@ -166,6 +168,7 @@ export const INPUT_ACTIONS = ["left", "right", "thrust", "fire", "special"];
 export function createDefaultSettings() {
   return {
     options: {
+      language: "en",
       playerCount: 1,
       asteroidBilliards: false,
       insanityMode: false,
@@ -245,7 +248,7 @@ export function createDefaultPlayerState(playerConfig, spawnPoint) {
 }
 
 export function getSpecialLabel(id) {
-  return SPECIALS.find((special) => special.id === id)?.label ?? id;
+  return t(`special.${id}.label`);
 }
 
 export function formatScore(score) {
@@ -255,7 +258,7 @@ export function formatScore(score) {
 }
 
 export function formatKeyCode(code) {
-  if (!code) return "Unbound";
+  if (!code) return t("keyboard.unbound");
   const map = {
     Space: "Space",
     ShiftLeft: "L-Shift",
@@ -362,5 +365,5 @@ export function adjustPlayerTuning(tuning, field, direction) {
 }
 
 export function getItemLabel(id) {
-  return ITEM_TYPES.find((item) => item.id === id)?.label ?? "Weapon";
+  return t(`item.${id}.label`);
 }

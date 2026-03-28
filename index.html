@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,27 +11,36 @@
       <aside class="control-panel" id="control-panel">
         <header class="panel-header">
           <div>
-            <p class="eyebrow">HAMCO-vibed Tribute</p>
-            <h1>Comet Busters 1994</h1>
+            <p class="eyebrow" data-i18n="app.eyebrow">HAMCO-vibed Tribute</p>
+            <h1 data-i18n="app.title">Comet Busters 1994</h1>
           </div>
-          <button class="secondary-button" id="collapse-panel-button" type="button">
+          <button class="secondary-button" id="collapse-panel-button" type="button" data-i18n="app.collapse">
             Einklappen
           </button>
         </header>
 
         <section class="panel-section intro-card">
-          <p>
+          <p data-i18n="app.intro">
             Asteroiden sprengen, Cronies austricksen, um den Rand wickeln und mit
             Schild, Hyperspace, Disrupter oder Cloak uberleben.
           </p>
-
         </section>
 
         <section class="panel-section">
-          <h2>Match Setup</h2>
+          <h2 data-i18n="setup.title">Match Setup</h2>
           <div class="field-grid">
             <label>
-              Spielerzahl
+              <span data-i18n="setup.language">Sprache</span>
+              <select id="language-select">
+                <option value="en">English</option>
+                <option value="de">Deutsch</option>
+                <option value="fr">Français</option>
+                <option value="es">Español</option>
+                <option value="it">Italiano</option>
+              </select>
+            </label>
+            <label>
+              <span data-i18n="setup.playerCount">Spielerzahl</span>
               <select id="player-count">
                 <option value="1">1</option>
                 <option value="2">2</option>
@@ -41,38 +50,38 @@
             </label>
             <label class="checkbox-line">
               <input id="asteroid-billiards" type="checkbox" />
-              Asteroiden-Billard aktivieren
+              <span data-i18n="setup.billiards">Asteroiden-Billard aktivieren</span>
             </label>
             <label class="checkbox-line">
               <input id="insanity-mode" type="checkbox" />
-              Insanity Mode aktivieren
+              <span data-i18n="setup.insanity">Insanity Mode aktivieren</span>
             </label>
             <label class="checkbox-line">
               <input id="friendly-fire" type="checkbox" />
-              Friendly Fire aktivieren
+              <span data-i18n="setup.friendlyFire">Friendly Fire aktivieren</span>
             </label>
             <label class="checkbox-line">
               <input id="particles-enabled" type="checkbox" />
-              Partikeleffekte aktivieren
+              <span data-i18n="setup.particles">Partikeleffekte aktivieren</span>
             </label>
             <label class="checkbox-line">
               <input id="screen-shake" type="checkbox" />
-              Screen Shake aktivieren
+              <span data-i18n="setup.shake">Screen Shake aktivieren</span>
             </label>
             <label class="checkbox-line">
               <input id="pixel-filter" type="checkbox" />
-              Retro Pixel Filter
+              <span data-i18n="setup.pixel">Retro Pixel Filter</span>
             </label>
             <label class="checkbox-line">
               <input id="audio-enabled" type="checkbox" />
-              Audio aktivieren
+              <span data-i18n="setup.audio">Audio aktivieren</span>
             </label>
             <label class="range-line">
-              SFX Lautstaerke
+              <span data-i18n="setup.sfxVol">SFX Lautstaerke</span>
               <input id="sfx-volume" type="range" min="0" max="100" step="1" />
             </label>
             <label class="range-line">
-              Musik Lautstaerke
+              <span data-i18n="setup.musicVol">Musik Lautstaerke</span>
               <input id="music-volume" type="range" min="0" max="100" step="1" />
             </label>
           </div>
@@ -80,29 +89,29 @@
 
         <section class="panel-section">
           <div class="section-heading">
-            <h2>Piloten</h2>
-            <p id="gamepad-status">Keine Gamepads erkannt. Stats bleiben immer bei Summe 20.</p>
+            <h2 data-i18n="pilots.title">Piloten</h2>
+            <p id="gamepad-status" data-i18n="pilots.nogamepad">Keine Gamepads erkannt. Stats bleiben immer bei Summe 20.</p>
           </div>
           <div class="player-grid" id="player-config-list"></div>
         </section>
 
         <section class="panel-section">
           <div class="section-heading">
-            <h2>Tastaturprofile</h2>
-            <p>Klick auf ein Feld und drucke die gewunschte Taste.</p>
+            <h2 data-i18n="keyboard.title">Tastaturprofile</h2>
+            <p data-i18n="keyboard.desc">Klick auf ein Feld und drucke die gewunschte Taste.</p>
           </div>
           <div class="keyboard-profiles" id="keyboard-profile-list"></div>
         </section>
 
         <section class="panel-section">
           <div class="section-heading">
-            <h2>Immortals</h2>
+            <h2 data-i18n="highscores.title">Immortals</h2>
           </div>
           <ol class="highscore-list" id="highscore-list"></ol>
         </section>
 
         <section class="panel-section footer-card">
-          <p>
+          <p data-i18n="footer.controls">
             Steuerung im Spiel: `Esc` oder Gamepad-Start pausiert. Menu wieder
             aufklappen: `M`.
           </p>
@@ -110,34 +119,34 @@
       </aside>
 
       <main class="stage-shell">
-        <button class="floating-menu-button" id="panel-toggle-button" type="button">
+        <button class="floating-menu-button" id="panel-toggle-button" type="button" data-i18n="overlay.menu">
           MENU
         </button>
         <canvas id="game-canvas" aria-label="Comet Busters Spielfeld"></canvas>
 
         <div class="overlay" id="start-overlay">
           <div class="overlay-card" style="text-align: center; min-width: 320px; box-shadow: 0 0 50px rgba(44, 100, 153, 0.25); border-color: var(--line-strong);">
-            <p class="eyebrow" id="start-eyebrow">HAMCO-vibed Tribute</p>
-            <h2 id="start-title" style="margin-bottom: 24px;">Comet Busters 1994</h2>
+            <p class="eyebrow" id="start-eyebrow" data-i18n="app.eyebrow">HAMCO-vibed Tribute</p>
+            <h2 id="start-title" style="margin-bottom: 24px;" data-i18n="app.title">Comet Busters 1994</h2>
             <div id="start-highscore-container" style="text-align: left; background: rgba(5, 10, 18, 0.6); padding: 18px; border-radius: 12px; margin-bottom: 24px; border: 1px solid var(--line);">
-              <p class="eyebrow" style="margin-bottom: 12px; color: var(--accent-2);">Immortals Highscores</p>
+              <p class="eyebrow" style="margin-bottom: 12px; color: var(--accent-2);" data-i18n="highscores.subtitle">Immortals Highscores</p>
               <ol class="highscore-list" id="start-highscore-list" style="margin: 0; padding-left: 36px;"></ol>
             </div>
             <div class="button-row" style="justify-content: center;">
-              <button class="primary-button" id="center-start-button" type="button" style="padding: 14px 40px; font-size: 1.1rem; box-shadow: 0 0 20px rgba(44, 100, 153, 0.45);">Spiel starten</button>
+              <button class="primary-button" id="center-start-button" type="button" style="padding: 14px 40px; font-size: 1.1rem; box-shadow: 0 0 20px rgba(44, 100, 153, 0.45);" data-i18n="overlay.start">Spiel starten</button>
             </div>
           </div>
         </div>
 
         <div class="overlay hidden" id="pause-overlay">
           <div class="overlay-card">
-            <p class="eyebrow">Pause</p>
-            <h2>Orbit halten</h2>
-            <p>Weiter mit `Esc`, Gamepad-Start oder dem Button unten.</p>
+            <p class="eyebrow" data-i18n="overlay.pause">Pause</p>
+            <h2 data-i18n="overlay.pauseDesc">Orbit halten</h2>
+            <p data-i18n="overlay.pauseSub">Weiter mit `Esc`, Gamepad-Start oder dem Button unten.</p>
             <div class="button-row">
-              <button class="primary-button" id="resume-button" type="button">Weiter</button>
-              <button class="secondary-button" id="restart-button" type="button">Neu starten</button>
-              <button class="secondary-button" id="open-settings-button" type="button">
+              <button class="primary-button" id="resume-button" type="button" data-i18n="overlay.resume">Weiter</button>
+              <button class="secondary-button" id="restart-button" type="button" data-i18n="overlay.restart">Neu starten</button>
+              <button class="secondary-button" id="open-settings-button" type="button" data-i18n="overlay.settings">
                 Einstellungen
               </button>
             </div>
@@ -146,8 +155,8 @@
 
         <div class="overlay hidden" id="highscore-overlay">
           <div class="overlay-card">
-            <p class="eyebrow">Neuer Highscore</p>
-            <h2>Initialen eintragen</h2>
+            <p class="eyebrow" data-i18n="highscore.new">Neuer Highscore</p>
+            <h2 data-i18n="highscore.enter">Initialen eintragen</h2>
             <p id="highscore-prompt">Spieler 1 hat 12.340 Punkte erreicht.</p>
             <form id="highscore-form" class="highscore-form">
               <input
@@ -158,7 +167,7 @@
                 autocomplete="off"
                 spellcheck="false"
               />
-              <button class="primary-button" type="submit">Speichern</button>
+              <button class="primary-button" type="submit" data-i18n="highscore.save">Speichern</button>
             </form>
           </div>
         </div>

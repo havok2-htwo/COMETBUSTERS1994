@@ -1,5 +1,6 @@
 import { AudioManager } from "./audio.js";
 import { SPECIALS, TUNING_FIELDS, TUNING_TOTAL, adjustPlayerTuning, formatKeyCode } from "./constants.js";
+import { t, setLanguage } from "./i18n.js";
 import { CometBustersGame } from "./game_core.js";
 import { InputManager } from "./input.js";
 import {
@@ -16,6 +17,7 @@ const elements = {
   controlPanel: document.querySelector("#control-panel"),
   panelToggleButton: document.querySelector("#panel-toggle-button"),
   collapsePanelButton: document.querySelector("#collapse-panel-button"),
+  languageSelect: document.querySelector("#language-select"),
   playerCount: document.querySelector("#player-count"),
   asteroidBilliards: document.querySelector("#asteroid-billiards"),
   insanityMode: document.querySelector("#insanity-mode"),
@@ -47,6 +49,8 @@ const input = new InputManager();
 const audio = new AudioManager();
 let settings = loadSettings();
 let highscores = loadHighscores();
+
+setLanguage(settings.options.language || "en");
 
 syncPlayerCount();
 
@@ -98,6 +102,12 @@ function escapeHtml(value) {
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
+}
+
+function refreshUiTexts() {
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    el.innerHTML = t(el.getAttribute("data-i18n"));
+  });
 }
 
 function saveAndRefresh() {
@@ -155,15 +165,15 @@ function renderHighscores() {
 
 function deviceOptions(selectedValue) {
   const baseOptions = [
-    ["keyboard:kb1", "Keyboard 1"],
-    ["keyboard:kb2", "Keyboard 2"],
-    ["keyboard:kb3", "Keyboard 3"],
-    ["keyboard:kb4", "Keyboard 4"],
-    ["gamepad:auto", "Gamepad Auto"],
-    ["gamepad:0", "Gamepad 1"],
-    ["gamepad:1", "Gamepad 2"],
-    ["gamepad:2", "Gamepad 3"],
-    ["gamepad:3", "Gamepad 4"],
+    ["keyboard:kb1", t("keyboard.kb1")],
+    ["keyboard:kb2", t("keyboard.kb2")],
+    ["keyboard:kb3", t("keyboard.kb3")],
+    ["keyboard:kb4", t("keyboard.kb4")],
+    ["gamepad:auto", t("gamepad.auto")],
+    ["gamepad:0", t("gamepad.1")],
+    ["gamepad:1", t("gamepad.2")],
+    ["gamepad:2", t("gamepad.3")],
+    ["gamepad:3", t("gamepad.4")],
   ];
 
   return baseOptions
@@ -176,10 +186,10 @@ function deviceOptions(selectedValue) {
 
 function renderPlayerCards() {
   const tuningLabels = {
-    speed: "Speed",
-    thrust: "Thrust",
-    shield: "Shield",
-    burst: "Burst",
+    speed: t("pilots.speed"),
+    thrust: t("pilots.thrust"),
+    shield: t("pilots.shield"),
+    burst: t("pilots.burst"),
   };
 
   elements.playerConfigList.innerHTML = settings.players
@@ -207,33 +217,33 @@ function renderPlayerCards() {
           <div class="player-header">
             <span class="player-color-dot" style="color:${player.color}; background:${player.color};"></span>
             <div>
-              <p class="player-title">Pilot ${player.id}</p>
-              <p class="player-subtitle">${player.enabled ? "Aktiv" : "Reserviert"}</p>
+              <p class="player-title">${player.name.startsWith("Pilot ") ? t("pilots.defaultName", { id: player.id }) : escapeHtml(player.name)}</p>
+              <p class="player-subtitle">${player.enabled ? t("pilots.active") : t("pilots.reserved")}</p>
             </div>
             <span class="tuning-value">${player.enabled ? "ON" : "OFF"}</span>
           </div>
 
           <label>
-            Name
+            ${t("pilots.name")}
             <input data-field="name" data-player-id="${player.id}" type="text" maxlength="18" value="${escapeHtml(player.name)}" />
           </label>
 
           <label>
-            Eingabe
+            ${t("pilots.input")}
             <select data-field="device" data-player-id="${player.id}">
               ${deviceOptions(player.device)}
             </select>
           </label>
 
           <label>
-            Special
+            ${t("pilots.special")}
             <select data-field="special" data-player-id="${player.id}">
               ${specialOptions}
             </select>
           </label>
 
           <div class="tuning-grid">
-            <div class="tuning-total">Total ${TUNING_TOTAL.toFixed(1)}</div>
+            <div class="tuning-total">${t("pilots.total")} ${TUNING_TOTAL.toFixed(1)}</div>
             ${tuningMarkup}
           </div>
         </article>
@@ -244,11 +254,11 @@ function renderPlayerCards() {
 
 function renderKeyboardProfiles() {
   const actionLabels = {
-    left: "Links",
-    right: "Rechts",
-    thrust: "Schub",
-    fire: "Feuer",
-    special: "Special",
+    left: t("keyboard.left"),
+    right: t("keyboard.right"),
+    thrust: t("keyboard.thrust"),
+    fire: t("keyboard.fire"),
+    special: t("keyboard.special"),
   };
 
   elements.keyboardProfileList.innerHTML = Object.values(settings.keyboardProfiles)
@@ -270,7 +280,7 @@ function renderKeyboardProfiles() {
 
       return `
         <article class="keyboard-card">
-          <strong>${profile.label}</strong>
+          <strong>${t("keyboard." + profile.id)}</strong>
           <div class="binding-grid">${buttons}</div>
         </article>
       `;
@@ -279,6 +289,7 @@ function renderKeyboardProfiles() {
 }
 
 function renderOptions() {
+  elements.languageSelect.value = settings.options.language || "en";
   elements.playerCount.value = String(settings.options.playerCount);
   elements.asteroidBilliards.checked = settings.options.asteroidBilliards;
   elements.insanityMode.checked = settings.options.insanityMode;
@@ -296,16 +307,17 @@ function renderOptions() {
 function renderGamepadStatus() {
   const connected = input.getConnectedGamepads();
   if (!connected.length) {
-    elements.gamepadStatus.textContent = "Keine Gamepads erkannt.";
+    elements.gamepadStatus.textContent = t("pilots.nogamepad");
     return;
   }
 
   elements.gamepadStatus.textContent = connected
-    .map((pad) => `Pad ${pad.index + 1}: ${pad.id}`)
+    .map((pad) => t("gamepad.padId", { index: pad.index + 1, id: pad.id }))
     .join(" | ");
 }
 
 function renderAll() {
+  refreshUiTexts();
   renderOptions();
   renderPlayerCards();
   renderKeyboardProfiles();
@@ -350,7 +362,7 @@ function showNextHighscoreEntry() {
   }
 
   const scoreText = currentHighscoreEntry.score.toLocaleString("de-DE");
-  elements.highscorePrompt.textContent = `${currentHighscoreEntry.playerName} hat ${scoreText} Punkte erreicht.`;
+  elements.highscorePrompt.textContent = t("highscore.prompt", { player: currentHighscoreEntry.playerName, score: scoreText });
   elements.initialsInput.value = sanitizeInitials(currentHighscoreEntry.playerName);
   elements.highscoreOverlay.classList.remove("hidden");
   elements.initialsInput.focus();
@@ -369,6 +381,12 @@ elements.openSettingsButton.addEventListener("click", () => {
 
 elements.panelToggleButton.addEventListener("click", () => setPanelCollapsed(false));
 elements.collapsePanelButton.addEventListener("click", () => setPanelCollapsed(true));
+
+elements.languageSelect.addEventListener("change", (event) => {
+  settings.options.language = event.target.value;
+  setLanguage(settings.options.language);
+  saveAndRefresh();
+});
 
 elements.playerCount.addEventListener("change", (event) => {
   settings.options.playerCount = Number(event.target.value);

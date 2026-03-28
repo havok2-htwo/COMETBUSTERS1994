@@ -1,3 +1,4 @@
+import { t } from "./i18n.js";
 import {
   ASTEROID_SIZES,
   ASTEROID_THEMES,
@@ -112,7 +113,7 @@ function createStars(width, height, count = 170) {
 }
 
 function formatLevel(level) {
-  return `Level ${String(level).padStart(2, "0")}`;
+  return t("game.level", { level });
 }
 
 export class CometBustersGame {
@@ -1058,9 +1059,10 @@ export class CometBustersGame {
     }
 
     this.gameOverHandled = true;
-    this.bannerText = "Game Over";
-    this.bannerSubtext = `Erreicht: ${formatLevel(this.level)}`;
-    this.bannerPulse = 999;
+    this.betweenRoundsTimer = 3.6;
+    this.bannerText = t("game.gameover");
+    this.bannerSubtext = t("game.levelSub", { level: this.level });
+    this.bannerPulse = 3.2;
 
     const candidates = this.players
       .filter((player) => qualifiesForHighscore(this.highscores, player.score))
@@ -1090,8 +1092,8 @@ export class CometBustersGame {
       }
     }
     this.betweenRoundsTimer = 3.2;
-    this.bannerText = "Sector Clear";
-    this.bannerSubtext = `Sprung zu ${formatLevel(this.level + 1)}`;
+    this.bannerText = t("game.sectorclear");
+    this.bannerSubtext = t("game.jumpSub", { level: this.level + 1 });
     this.bannerPulse = 2.8;
     this.audio.play("start", { volume: 0.12, playbackRate: 1.35 });
   }
@@ -1510,11 +1512,11 @@ export class CometBustersGame {
     ctx.fillText("COMET BUSTERS!", this.width * 0.5, this.height * 0.34);
     ctx.fillStyle = "#d8f5ff";
     ctx.font = '18px "Lucida Console", "Courier New", monospace';
-    ctx.fillText("Arcade tribute fur 1 bis 4 Spieler", this.width * 0.5, this.height * 0.34 + 42);
+    ctx.fillText(t("game.tribute"), this.width * 0.5, this.height * 0.34 + 42);
     ctx.fillStyle = "rgba(216, 245, 255, 0.75)";
     ctx.font = '14px "Lucida Console", "Courier New", monospace';
     ctx.fillText(
-      "Steuerung und Specials links konfigurieren, dann Spiel starten.",
+      t("game.attractSub"),
       this.width * 0.5,
       this.height * 0.34 + 76,
     );
