@@ -2,190 +2,189 @@
 
 **A Game by havok2**
 
-Lokales Browser-Arcade-Spiel als Hommage an `Comet Busters!` von 1994. Das Projekt ist auf schnellen Couch-Koop oder lokales Versus mit `1` bis `4` Spielern ausgelegt und kombiniert klassische Asteroiden-Action mit Specials, Weapon-Drops, persistenten Highscores und bewusst ueberzeichneter 90s-Arcade-Praesentation.
+Local browser arcade game as a tribute to `Comet Busters!` from 1994. The project is designed for fast couch co-op or local versus with `1` to `4` players and combines classic asteroid action with specials, weapon drops, persistent highscores, and deliberately exaggerated 90s arcade presentation.
 
-## Projektstatus
+## Project Status
 
-- Der aktuell genutzte Runtime-Pfad ist `index.html` -> `main.js` -> `game_core.js`.
-- Die Mehrsprachigkeit wird gerade separat eingebaut.
-- Geplant sind `Englisch`, `Deutsch`, `Franzoesisch`, `Spanisch` und `Italienisch`.
-- Solange der Umbau laeuft, koennen Texte, Benennungen oder einzelne Codepfade noch uneinheitlich wirken.
+- The currently used runtime path is `index.html` -> `main.js` -> `game_core.js`.
+- Multilanguage support is implemented and working.
+- Supported languages are `English`, `German`, `French`, `Spanish` and `Italian`.
 
-## Feature-Ueberblick
+## Feature Overview
 
-- `1` bis `4` lokale Spieler an einem Rechner
-- Keyboard- und Gamepad-Steuerung
-- Freie Zuordnung von Namen, Eingabegeraeten und Specials pro Pilot
-- Vier Tuning-Werte pro Spieler: `Speed`, `Thrust`, `Shield`, `Burst`
-- Feste Tuning-Gesamtsumme von `20`, damit alle Builds vergleichbar bleiben
-- `5` Leben pro Spieler, sichere Respawns und lokaler Highscore-Eintrag mit Initialen
-- Wrap-Around-Spielfeld ohne Reibung
-- Asteroiden in `large`, `medium`, `small` mit Split-Logik
-- Level-Countdown, Wave-Clear-Pausen und wechselnde Asteroiden-Themes
-- Cronies/Smileys als jagende Gegner
-- UFO-Gegner mit Zickzack-Flug und roten Schuessen
-- Weapon-Drops: `Rocket`, `Gatling`, `Laser`
-- Specials: `Shield`, `Hyperspace`, `Disrupter`, `Cloak`
-- Optionale Modi und Komfort-Optionen:
-  - `Asteroiden-Billard`
+- `1` to `4` local players on one computer.
+- Keyboard and gamepad controls.
+- Free assignment of names, input devices, and specials per pilot.
+- Four tuning values per player: `Speed`, `Thrust`, `Shield`, `Burst`.
+- Fixed total tuning sum of `20` to keep all builds comparable.
+- `5` lives per player, safe respawns, and local highscore entry with initials.
+- Wrap-around playfield without friction.
+- Asteroids in `large`, `medium`, `small` with split logic.
+- Level countdown, wave-clear pauses, and changing asteroid themes.
+- Cronies/Smileys as hunting enemies.
+- UFO enemies with zigzag flight and red shots.
+- Weapon drops: `Rocket`, `Gatling`, `Laser`.
+- Specials: `Shield`, `Hyperspace`, `Disrupter`, `Cloak`.
+- Optional modes and comfort options:
+  - `Asteroid Billiards`
   - `Insanity Mode`
   - `Friendly Fire`
-  - `Partikeleffekte`
+  - `Particle Effects`
   - `Screen Shake`
   - `Retro Pixel Filter`
   - `Audio`
-  - getrennte `SFX`- und `Musik`-Lautstaerke
-- Browser-Audio mit echten Dateien aus `assets/audio/` plus WebAudio-Fallback, falls Dateien fehlen
+  - Separate `SFX` and `Music` volume
+- Browser audio using real files from `assets/audio/` plus WebAudio fallback if files are missing.
 
-## Spielablauf
+## Gameplay
 
-1. Im linken Panel Spielerzahl, Modi, Audio und Eingabegeraete einstellen.
-2. Fuer jeden aktiven Piloten Namen, Special und Tuning festlegen.
-3. `Spiel starten` klicken.
-4. Jede Runde beginnt mit einem kurzen Countdown.
-5. Asteroiden zerlegen, Gegner ueberleben, Weapon-Drops einsammeln und moeglichst lange durchhalten.
-6. Sind Asteroiden, Cronies und UFOs einer Welle beseitigt, startet nach kurzer Pause das naechste Level.
-7. Wenn alle Spieler keine Leben mehr haben, endet das Match. Qualifizierte Scores werden lokal in die Highscore-Liste eingetragen.
+1. Set the player count, modes, audio, and input devices in the left panel.
+2. For each active pilot, adjust the name, special, and tuning.
+3. Click `Start Game`.
+4. Every round begins with a short countdown.
+5. Blast asteroids, survive enemies, collect weapon drops, and hold out as long as possible.
+6. Once all asteroids, cronies, and UFOs of a wave are eliminated, the next level starts after a brief pause.
+7. If all players run out of lives, the match ends. Qualifying scores are entered into the local highscore list.
 
-## Spieler-Tuning
+## Player Tuning
 
-Jeder Pilot verteilt insgesamt `20` Punkte auf vier Werte:
+Each pilot distributes a total of `20` points across four stats:
 
-- `Speed`: beeinflusst Topspeed, Wendigkeit und allgemeines Impulsverhalten
-- `Thrust`: bestimmt, wie schnell das Schiff beschleunigt
-- `Shield`: verbessert Schild-Effizienz, Respawn-Schutz und die trage Masse des Schiffs
-- `Burst`: senkt die Schussabklingzeit der Standardwaffe
+- `Speed`: Influences top speed, maneuverability, and general momentum handling.
+- `Thrust`: Determines how fast the ship accelerates.
+- `Shield`: Improves shield efficiency, respawn protection, and the ship's mass.
+- `Burst`: Lowers the cooldown of the standard weapon.
 
-Die Stepper im Setup sorgen automatisch dafuer, dass die Gesamtsumme bei `20` bleibt.
+The steppers in the setup automatically ensure the sum remains exactly `20`.
 
 ## Specials
 
-- `Shield`: wird gehalten statt einmalig ausgeloest. Macht kurzzeitig unverwundbar und zerlegt Objekte bei direkter Kollision. Wenn die Ladung komplett leer ist, greift ein Lockout, bevor wieder geladen werden kann.
-- `Hyperspace`: versteckt das Schiff fuer einige Sekunden und setzt es danach an eine moeglichst sichere Position zurueck.
-- `Disrupter`: loest eine expandierende Schockwelle aus. Sie zerlegt Bullets, Cronies und UFOs, sprengt Asteroiden auf und schubst andere Spieler weg.
-- `Cloak`: macht den Spieler fuer Cronies und andere Zielsysteme unsichtbar. Wenn der Effekt endet, waehrend das Schiff in einem Objekt steckt, stirbt der Spieler.
+- `Shield`: Channelled instead of a single trigger. Grants brief invulnerability and destroys objects on direct impact. If the charge is completely depleted, a lockout triggers before it can be recharged.
+- `Hyperspace`: Hides the ship for a few seconds and then reappears at the safest possible random location.
+- `Disrupter`: Unleashes an expanding shockwave. It destroys bullets, cronies, and UFOs, breaks asteroids, and pushes other players away.
+- `Cloak`: Makes the player invisible to cronies and other targeting systems. If the effect ends while the ship is inside an object, the player dies.
 
-## Weapon-Drops
+## Weapon Drops
 
-Ab `Level 2` kann jeweils ein schwebender Pickup auf dem Feld erscheinen:
+Starting from `Level 2`, a floating pickup can appear on the field:
 
-- `Rocket`: feuert eine kurze Salve aus zielsuchenden Raketen
-- `Gatling`: sehr schnelle Streufeuer-Variante der Standardwaffe
-- `Laser`: kontinuierlicher Strahl statt einzelner Projektile
+- `Rocket`: Fires a short burst of homing missiles.
+- `Gatling`: Very fast rapid-fire variant of the standard weapon.
+- `Laser`: Continuous beam instead of individual projectiles.
 
-Die HUD-Anzeige zeigt fuer jede Waffe eine eigene Ladungsleiste. Ein neuer Pickup ersetzt die aktuell ausgeruestete Spezialwaffe.
+The HUD shows a dedicated charge bar for every active weapon. A new pickup replaces the currently equipped special weapon.
 
-## Gegner und Progression
+## Enemies and Progression
 
-- Asteroiden starten als grosse Brocken und splitten sich stufenweise herunter.
-- Beim Zerstoeren von Asteroiden koennen Cronies entstehen.
-- UFOs erscheinen ab `Level 4`.
-- Fuer jede Welle werden neue sichere Spawn-Orte fuer Asteroiden gesucht, damit Spieler nicht sofort ueberrannt werden.
-- Respawns erfolgen nur, wenn ein Spawnpunkt gerade frei genug ist.
+- Asteroids start as large chunks and split stepwise down to smaller pieces.
+- Destroying asteroids has a chance to spawn Cronies.
+- UFOs start appearing from `Level 4` onwards.
+- Every wave looks for secure spawn locations for asteroids so players aren't instantly overrun.
+- Respawns only occur when a spawn point is clear enough.
 
-## Spielmodi und Optionen
+## Game Modes and Options
 
-- `Asteroiden-Billard`: aktiviert Kollisionen zwischen Asteroiden. Dadurch wird das Feld deutlich physischer und chaotischer.
-- `Insanity Mode`: Schuesse, Raketen und Laser schubsen Asteroiden hauptsaechlich nur noch herum, statt sie normal zu zerstoeren. Das erzeugt mehr Impuls- und Kettenreaktions-Chaos.
-- `Friendly Fire`: macht Waffen-Treffer zwischen Spielern toedlich. Wenn die Option aus ist, koennen andere Spieler durch Projektile trotzdem noch weggeschoben werden.
-- `Partikeleffekte`: Schub, Explosionen, Funken und Pickup-Bursts.
-- `Screen Shake`: Kamera-Shake bei groesseren Einschlaegen und Explosionen.
-- `Retro Pixel Filter`: rendert das Bild leicht herunter- und wieder hochskaliert fuer einen crunchigeren Look.
-- `Audio`: aktiviert/deaktiviert Soundeffekte und Musik global.
+- `Asteroid Billiards`: Enables collisions between asteroids. This makes the field significantly more physical and chaotic.
+- `Insanity Mode`: Shots, rockets, and lasers mostly push asteroids around instead of destroying them normally. This creates high-momentum and chain-reaction chaos.
+- `Friendly Fire`: Makes weapon hits between players lethal. If disabled, other players can still be pushed away by projectiles.
+- `Particle Effects`: Thrusters, explosions, sparks and pickup bursts.
+- `Screen Shake`: Camera shake on larger impacts and explosions.
+- `Retro Pixel Filter`: Renders the image slightly downscaled and upscaled again for a crunchier look.
+- `Audio`: Globally toggles sound effects and music.
 
-## Punkte
+## Scoring
 
 - `Asteroid large`: `120`
 - `Asteroid medium`: `200`
 - `Asteroid small`: `320`
 - `Crony`: `350`
 - `UFO`: `650`
-- `Spieler-Kill`: `500`
-- `Wave Clear`: `1000` pro noch lebendem Spieler
+- `Player Kill`: `500`
+- `Wave Clear`: `1000` per surviving player
 
-## Steuerung
+## Controls
 
-### Allgemein
+### General
 
-- `Esc`: Pause umschalten
-- `Gamepad Start`: Pause umschalten
-- `M`: Seitenpanel ein- oder ausklappen
-- Wird das Panel waehrend eines laufenden Spiels geoeffnet, pausiert das Spiel automatisch.
+- `Esc`: Toggle pause
+- `Gamepad Start`: Toggle pause
+- `M`: Toggle the side panel
+- If the panel is opened during an active game, the game pauses automatically.
 
-### Tastatur
+### Keyboard
 
-Alle Keyboard-Profile koennen direkt im linken Panel umbelegt werden. Standardbelegung:
+All keyboard profiles can be remapped directly in the left panel. Default bindings:
 
-- `Keyboard 1`: `A` links, `D` rechts, `W` Schub, `Space` Feuer, `Left Shift` Special
-- `Keyboard 2`: `J` links, `L` rechts, `I` Schub, `K` Feuer, `U` Special
-- `Keyboard 3`: `Left` links, `Right` rechts, `Up` Schub, `Numpad 0` Feuer, `Numpad 1` Special
-- `Keyboard 4`: `F` links, `H` rechts, `T` Schub, `G` Feuer, `R` Special
+- `Keyboard 1`: `A` left, `D` right, `W` thrust, `Space` fire, `Left Shift` special
+- `Keyboard 2`: `J` left, `L` right, `I` thrust, `K` fire, `U` special
+- `Keyboard 3`: `Left` left, `Right` right, `Up` thrust, `Numpad 0` fire, `Numpad 1` special
+- `Keyboard 4`: `F` left, `H` right, `T` thrust, `G` fire, `R` special
 
 ### Gamepad
 
-Standard-Mapping:
+Default mapping:
 
-- linker Stick links/rechts oder D-Pad: drehen
-- `A`, `RT` oder D-Pad oben: Schub
-- `X`, `RB` oder `B`: Feuer
-- `Y`, `LB` oder `LT`: Special
+- Left Stick left/right or D-Pad: Rotate
+- `A`, `RT` or D-Pad up: Thrust
+- `X`, `RB` or `B`: Fire
+- `Y`, `LB` or `LT`: Special
 - `Start`: Pause
 
-Zusaetzlich gibt es `gamepad:auto`, damit ein Spieler automatisch ein verfuegbares Pad nutzen kann.
+There is also a `gamepad:auto` input which lets a player automatically bind to an available gamepad.
 
-## Anleitung für absolute Beginner
+## Absolute Beginners Guide
 
-Du möchtest das Spiel einfach nur laden und spielen? Folge dieser Schritt-für-Schritt-Anleitung:
+You just want to download the game and play it? Follow this step-by-step guide:
 
-### 1. Das Spiel herunterladen (Kopieren)
-Du musst das Spiel auf deinen PC kopieren (klonen).
-1. Öffne ein Terminal (Eingabeaufforderung / PowerShell in Windows) oder Terminal (Mac/Linux).
-2. Tippe folgenden Befehl ein und drücke Enter:
+### 1. Download the Game (Clone)
+You need to copy (clone) the game to your PC.
+1. Open a terminal (Command Prompt / PowerShell on Windows) or Terminal (Mac/Linux).
+2. Type the following command and press Enter:
    ```bash
    git clone https://github.com/havok2-htwo/COMETBUSTERS1994.git
    ```
-3. Gehe in den heruntergeladenen Ordner:
+3. Enter the downloaded folder:
    ```bash
    cd COMETBUSTERS1994
    ```
 
-### 2. Das Spiel starten
-Da dieses Spiel Bilder und Sounds lokal lädt, kann man die `index.html` nicht einfach per Doppelklick öffnen. Es braucht einen Mini-Server im Hintergrund (Python ist meistens schon vorinstalliert).
+### 2. Start the Game
+Because this game loads images and sound files locally, you can't just double-click `index.html`. It needs a mini-server running in the background (Python is usually pre-installed on most systems).
 
-* **Für Windows-Nutzer:**
-  Im Ordner liegt eine Datei namens `start_server.bat`. Du kannst diese Datei einfach **doppelklicken** oder im Terminal `start_server.bat` eingeben.
+* **For Windows users:**
+  There is a file called `start_server.bat` in the folder. You can simply **double-click** it or type `start_server.bat` in your terminal.
 
-* **Für Linux/Mac-Nutzer:**
-  Im Ordner liegt ein Skript namens `start_server.sh`. Mache es im Terminal zuerst ausführbar und starte es dann:
+* **For Linux/Mac users:**
+  There is a script called `start_server.sh` in the folder. Make it executable first and then run it:
   ```bash
   chmod +x start_server.sh
   ./start_server.sh
   ```
 
-Das Skript startet den Hintergrund-Server und öffnet danach automatisch deinen Browser auf **http://127.0.0.1:8080**.
+The script starts the background server and automatically opens your browser at **http://127.0.0.1:8080**.
 
-### 3. Alternative manuelle Methode (Python/npm)
-Falls die Skripte nicht klappen, kannst du den Server manuell im Terminal starten, während du dich im `COMETBUSTERS1994` Ordner befindest:
+### 3. Alternative Manual Method (Python/npm)
+If the scripts don't work, you can start the server manually in your terminal while inside the `COMETBUSTERS1994` folder:
 
 ```bash
-# Entweder über Python 3:
+# Using Python 3:
 python3 -m http.server 8080
 
-# Oder bei älteren Python-Versionen:
+# Or with older Python versions:
 python -m http.server 8080
 
-# Oder falls Node.js installiert ist:
+# Or if Node.js is installed:
 npm run serve
 ```
-Danach im Browser aufrufen: `http://127.0.0.1:8080`
+Then open your browser and navigate to: `http://127.0.0.1:8080`
 
-## Audio und Musik
+## Audio and Music
 
-### Soundeffekte
+### Sound Effects
 
-Der Loader sucht WAV-Dateien in `assets/audio/<event>/` und waehlt pro Event zufaellig eine Datei aus.
+The loader searches for WAV files in `assets/audio/<event>/` and picks a random file per event.
 
-Verwendete Event-Ordner:
+Used event folders:
 
 - `player_shot`
 - `player_hit_push`
@@ -212,53 +211,54 @@ Verwendete Event-Ordner:
 - `ufo_die`
 - `respawn`
 
-Fehlen Dateien in einem Event-Ordner, nutzt das Spiel automatisch generierte Fallback-Sounds per WebAudio.
+If an event folder is missing files, the game automatically falls back to generated WebAudio placeholder sounds.
 
-### Musik
+### Music
 
-Hintergrundmusik wird aus `assets/audio/music/` geladen. Unterstuetzt werden derzeit:
+Background music is loaded from `assets/audio/music/`. Currently supported formats:
 
 - `.mp3`
 - `.ogg`
 - `.wav`
 
-Sind keine Musikdateien vorhanden, laeuft das Spiel einfach ohne Hintergrundmusik weiter.
+If no music files are found, the game will seamlessly continue without background music.
 
-### Hinweis zu aelteren Doku-Resten
+### Note on older documentation leftovers
 
-Aeltere Hinweise in `AUDIO_FILES.txt` oder `assets/audio/README.md` stammen noch aus einem frueheren Stand mit `sounds/...`. Fuer den aktuellen Build ist `assets/audio/...` massgeblich.
+Older notes in `AUDIO_FILES.txt` or `assets/audio/README.md` belong to an earlier iteration using `sounds/...`. For this build, `assets/audio/...` is the definitive path.
 
-## Persistenz
+## Persistence
 
-Das Spiel speichert lokal im Browser:
+The game saves locally in your browser:
 
-- Einstellungen unter `cometbusters.settings.v1`
-- Highscores unter `cometbusters.highscores.v1`
+- Settings under `cometbusters.settings.v1`
+- Highscores under `cometbusters.highscores.v1`
 
-Das bedeutet:
+This means:
 
-- Einstellungen und Scores sind browser- und profilgebunden.
-- Ein anderer Browser oder ein privates Fenster sieht andere bzw. keine gespeicherten Daten.
+- Settings and scores are tightly tied to your browser and local profile.
+- A different browser or an incognito window will have different (or zero) saved data.
 
-## Projektstruktur
+## Project Structure
 
-- `index.html`: UI-Shell, Setup-Panel, Overlays und Canvas
-- `main.js`: verbindet DOM, Settings, Audio, Input und den Game-Loop
-- `game_core.js`: aktuelle Haupt-Spiellogik
-- `constants.js`: Defaults, Specials, Tuning, Scores, Storage-Keys
-- `input.js`: Keyboard- und Gamepad-Abfrage
-- `audio.js`: Laden und Abspielen von Sounds und Musik
-- `storage.js`: Laden/Speichern von Einstellungen und Highscores via `localStorage`
-- `style.css`: Layout, HUD-nahe UI und Responsive-Verhalten
-- `assets/textures/`: Schiffe, Asteroiden, Gegner und Item-Sprites
-- `assets/audio/`: Soundeffekte und Musik
+- `index.html`: UI shell, setup panel, overlays, and canvas
+- `main.js`: Binds DOM, settings, audio, input, and the game loop
+- `game_core.js`: Current core game logic
+- `constants.js`: Defaults, specials, tuning, scores, storage keys
+- `input.js`: Keyboard and gamepad polling
+- `audio.js`: Loading and playback of sounds and music
+- `storage.js`: Loading/saving settings and highscores via `localStorage`
+- `style.css`: Layout, contextual HUD UI and responsive behavior
+- `i18n.js`: Translation engine and dictionary
+- `assets/textures/`: Ships, asteroids, enemies, and item sprites
+- `assets/audio/`: Sound effects and music
 
-## Entwicklerhinweise
+## Developer Notes
 
-- `game.js` liegt noch im Projekt, wird von `index.html` aktuell aber nicht geladen und ist eher als aelterer Entwicklungsstand zu verstehen.
-- Das Spiel ist momentan klar fuer Desktop-Browser und lokales Multiplayer-Setup gedacht. Es gibt keine Touch-Steuerung.
-- Da parallel an Lokalisierung gearbeitet wird, sind kleinere Inkonsistenzen in Texten oder Dateinamen aktuell erwartbar.
+- `game.js` is still in the project but currently not loaded by `index.html`. It serves as an older development baseline.
+- The game is primarily intended for desktop browsers and local multiplayer setups. There are currently no touch controls.
+- As localization was recently introduced, minor inconsistencies in text strings or filenames might still pop up.
 
-## Referenzmaterial
+## Reference Material
 
-Die Dateien in `old_reference_images/` wurden als visuelle Orientierung fuer Stil, HUD und Gesamtstimmung verwendet. Falls der Ordner lokal gerade fehlt oder geaendert wurde, hat das keinen Einfluss auf die Laufzeit des Spiels.
+The files in `old_reference_images/` were used as visual guidelines for art style, HUD, and overall mood. If the folder is missing or altered locally, it has no impact on running the game.
