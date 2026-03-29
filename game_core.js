@@ -2175,8 +2175,11 @@ export class CometBustersGame {
       this.pixelCtx.imageSmoothingEnabled = false;
       this.pixelCtx.drawImage(this.canvas, 0, 0, w, h, 0, 0, scaledW, scaledH);
       
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(this.pixelCanvas, 0, 0, scaledW, scaledH, 0, 0, w, h);
+      ctx.restore();
     }
   }
 
