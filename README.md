@@ -4,6 +4,9 @@
 
 Local browser arcade game as a tribute to `Comet Busters!` from 1994. The project is designed for fast couch co-op or local versus with `1` to `4` players and combines classic asteroid action with specials, weapon drops, persistent highscores, and deliberately exaggerated 90s arcade presentation.
 
+[![Gameplay Video](https://img.youtube.com/vi/E7HvAQXh4fg/0.jpg)](https://youtu.be/E7HvAQXh4fg)
+
+
 ## Project Status
 
 - The currently used runtime path is `index.html` -> `main.js` -> `game_core.js`.
