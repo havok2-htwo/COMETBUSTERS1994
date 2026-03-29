@@ -21,23 +21,25 @@ Local browser arcade game as a tribute to `Comet Busters!` from 1994. The projec
 - Four tuning values per player: `Speed`, `Thrust`, `Shield`, `Burst`.
 - Fixed total tuning sum of `20` to keep all builds comparable.
 - `5` lives per player, safe respawns, and local highscore entry with initials.
-- Wrap-around playfield without friction.
+- Wrap-around playfield without friction (ships, bullets, particles, and force effects all wrap correctly).
 - Asteroids in `large`, `medium`, `small` with split logic.
 - Level countdown, wave-clear pauses, and changing asteroid themes.
 - Cronies/Smileys as hunting enemies.
 - UFO enemies with zigzag flight and red shots.
-- Weapon drops: `Rocket`, `Gatling`, `Laser`.
+- Weapon drops: `Rocket`, `Gatling`, `Laser`, `Mega Destructor` (rare).
 - Specials: `Shield`, `Hyperspace`, `Disrupter`, `Cloak`.
 - Optional modes and comfort options:
   - `Asteroid Billiards`
   - `Insanity Mode`
   - `Friendly Fire`
+  - `Items` (can be disabled for a pure hardcore experience)
   - `Particle Effects`
   - `Screen Shake`
   - `Retro Pixel Filter`
   - `Audio`
   - Separate `SFX` and `Music` volume
 - Browser audio using real files from `assets/audio/` plus WebAudio fallback if files are missing.
+- Spatial stereo audio: sounds pan left/right based on where they occur on screen.
 
 ## Gameplay
 
@@ -73,9 +75,12 @@ Starting from `Level 2`, a floating pickup can appear on the field:
 
 - `Rocket`: Fires a short burst of homing missiles.
 - `Gatling`: Very fast rapid-fire variant of the standard weapon.
-- `Laser`: Continuous beam instead of individual projectiles.
+- `Laser`: Continuous beam instead of individual projectiles. Wraps around screen edges.
+- `Mega Destructor` *(rare – ~8% spawn chance)*: Fires a single, massive expanding shockwave that clears the entire screen of asteroids, cronies, and UFOs instantly. Accompanied by heavy camera shake.
 
 The HUD shows a dedicated charge bar for every active weapon. A new pickup replaces the currently equipped special weapon.
+
+The `Items` option in the setup panel can be disabled entirely for a pure ships-only experience.
 
 ## Enemies and Progression
 
@@ -90,9 +95,10 @@ The HUD shows a dedicated charge bar for every active weapon. A new pickup repla
 - `Asteroid Billiards`: Enables collisions between asteroids. This makes the field significantly more physical and chaotic.
 - `Insanity Mode`: Shots, rockets, and lasers mostly push asteroids around instead of destroying them normally. This creates high-momentum and chain-reaction chaos.
 - `Friendly Fire`: Makes weapon hits between players lethal. If disabled, other players can still be pushed away by projectiles.
+- `Items Enabled`: Toggles whether weapon drops appear on the field. Disable for a pure, hardcore asteroids experience.
 - `Particle Effects`: Thrusters, explosions, sparks and pickup bursts.
 - `Screen Shake`: Camera shake on larger impacts and explosions.
-- `Retro Pixel Filter`: Renders the image slightly downscaled and upscaled again for a crunchier look.
+- `Retro Pixel Filter`: Renders the image slightly downscaled and upscaled again for a crunchier look. Pixel size is adjustable via slider.
 - `Audio`: Globally toggles sound effects and music.
 
 ## Scoring
@@ -189,32 +195,47 @@ The loader searches for WAV files in `assets/audio/<event>/` and picks a random 
 
 Used event folders:
 
-- `player_shot`
-- `player_hit_push`
-- `gatling_fire`
-- `laser_fire`
-- `rocket_launch`
-- `rocket_thrust`
-- `game_start`
-- `wave_start`
-- `wave_clear`
-- `explosion_large`
-- `explosion_medium`
-- `explosion_small`
-- `explosion_ship`
-- `game_over`
-- `shield`
-- `hyperspace`
-- `disrupter`
-- `crony_spawn`
-- `crony_die`
-- `item_pickup`
-- `ufo_spawn`
-- `ufo_fire`
-- `ufo_die`
-- `respawn`
+| Folder | Trigger |
+|---|---|
+| `player_shot` | Standard weapon fire |
+| `player_hit_push` | Player pushed by weapon |
+| `gatling_fire` | Gatling gun shot |
+| `laser_fire` | Laser beam start |
+| `rocket_launch` | Rocket fired |
+| `rocket_thrust` | Rocket in flight |
+| `game_start` | Match begins |
+| `wave_start` | New wave countdown |
+| `wave_clear` | Wave completed |
+| `explosion_large` | Large asteroid destroyed |
+| `explosion_medium` | Medium asteroid destroyed |
+| `explosion_small` | Small asteroid destroyed |
+| `explosion_ship` | Player ship destroyed |
+| `game_over` | All players eliminated |
+| `shield` | Shield active (looped while held) |
+| `hyperspace` | Hyperspace jump |
+| `disrupter` | Disrupter shockwave |
+| `mega_destructor` | Mega Destructor fired |
+| `crony_spawn` | Crony/Smiley appears |
+| `crony_die` | Crony eliminated |
+| `item_pickup` | Weapon drop collected |
+| `ufo_spawn` | UFO appears |
+| `ufo_fire` | UFO shoots |
+| `ufo_die` | UFO eliminated |
+| `respawn` | Player respawns |
+| `recharge` | Special ability fully recharged |
+| `player_out` | A player loses their last life (if others still alive) |
 
 If an event folder is missing files, the game automatically falls back to generated WebAudio placeholder sounds.
+
+### Spatial Audio
+
+All in-game sounds are spatially panned based on where they occur on screen:
+
+- Left third of screen → slightly quieter on the right speaker
+- Centre third → full stereo
+- Right third of screen → slightly quieter on the left speaker
+
+Maximum attenuation is `-6 dB`. UI sounds (game start, game over, wave clear etc.) are always played in full stereo.
 
 ### Music
 
