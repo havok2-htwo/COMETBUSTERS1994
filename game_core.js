@@ -621,14 +621,30 @@ export class CometBustersGame {
 
   createUfo() {
     const fromLeft = Math.random() < 0.5;
-    const y = rand(this.height * 0.18, this.height * 0.82);
+    const x = fromLeft ? -UFO_RADIUS * 2.4 : this.width + UFO_RADIUS * 2.4;
+    let y = rand(this.height * 0.18, this.height * 0.82);
+
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      let isSafe = true;
+      for (const player of this.players) {
+        if (!player.alive || player.hyperspaceHidden) continue;
+        const delta = toroidalDistance({ x, y }, player, this.width, this.height);
+        if (delta.distance < 240) {
+          isSafe = false;
+          break;
+        }
+      }
+      if (isSafe) break;
+      y = rand(this.height * 0.18, this.height * 0.82);
+    }
+
     const speed = rand(150, 210) + this.level * 4.5;
     const direction = fromLeft ? 1 : -1;
 
     return {
       id: makeId("ufo"),
       kind: "ufo",
-      x: fromLeft ? -UFO_RADIUS * 2.4 : this.width + UFO_RADIUS * 2.4,
+      x,
       y,
       baseY: y,
       vx: speed * direction,
@@ -705,17 +721,27 @@ export class CometBustersGame {
 
         const backX = player.x - thrustDirection.x * player.radius;
         const backY = player.y - thrustDirection.y * player.radius;
-        const pushRadius = player.radius * 6.0;
+        const pushLength = player.radius * 6.0;
+        const pushWidth = player.radius * 2.0;
         const pushStrength = 4550 * deltaSeconds;
 
         const looseEntities = [...this.asteroids, ...this.cronies, ...this.items, ...this.players.filter(p => this.isPlayerSolid(p) && p.id !== player.id)];
         for (const entity of looseEntities) {
           if (entity.dead) continue;
           const delta = toroidalDistance({x: backX, y: backY}, entity, this.width, this.height);
-          if (delta.distance < pushRadius + entity.radius) {
-            const heading = normalizeVector(delta.dx, delta.dy);
-            const strength = pushStrength * (1 - delta.distance / (pushRadius + entity.radius));
-            this.applyImpactAtPoint(entity, heading.x, heading.y, strength, entity.x, entity.y);
+          
+          const backDirX = -thrustDirection.x;
+          const backDirY = -thrustDirection.y;
+          const sideDirX = -thrustDirection.y;
+          const sideDirY = thrustDirection.x;
+
+          const backProj = delta.dx * backDirX + delta.dy * backDirY;
+          const sideProj = Math.abs(delta.dx * sideDirX + delta.dy * sideDirY);
+
+          if (backProj > -entity.radius && backProj < pushLength + entity.radius && sideProj < pushWidth + entity.radius) {
+            const distFactor = Math.max(0, 1 - Math.max(0, backProj) / pushLength);
+            const strength = pushStrength * distFactor;
+            this.applyImpactAtPoint(entity, backDirX, backDirY, strength, entity.x, entity.y);
           }
         }
 
