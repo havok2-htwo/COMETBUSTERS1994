@@ -373,6 +373,9 @@ export class CometBustersGame {
     this.countdownTimer = 3.4;
     this.betweenRoundsTimer = 0;
     this.ambientCronyTimer = clamp(12 - level * 0.4, 4.4, 12);
+    // Regenerate starfield with varying density per level (120–240 stars)
+    const starCount = 120 + Math.round(Math.abs(Math.sin(level * 0.77)) * 120);
+    this.stars = createStars(this.width, this.height, starCount);
     this.itemSpawnTimer = rand(ITEM_SPAWN_MIN, ITEM_SPAWN_MAX);
     this.ufoSpawnTimer = rand(
       Math.max(8, UFO_SPAWN_MIN - Math.min(7, level * 0.5)),
@@ -756,6 +759,15 @@ export class CometBustersGame {
         }
       } else {
         player.trailTimer = 0;
+      }
+
+      // RCS steering thrusters (small puffs on the side when turning)
+      if (this.settings.options.particlesEnabled && Math.abs(turnInput) > 0) {
+        player.rcsTimer = (player.rcsTimer || 0) - deltaSeconds;
+        if (player.rcsTimer <= 0) {
+          player.rcsTimer = 0.06;
+          this.spawnRcsThrusterParticles(player, turnInput);
+        }
       }
 
       this.updatePlayerFire(player, controls, deltaSeconds);
@@ -2109,12 +2121,13 @@ export class CometBustersGame {
   spawnThrusterParticles(player) {
     const backward = vectorFromAngle(player.angle + Math.PI);
     const side = perpendicular(backward.x, backward.y);
+    // Two nozzles, wider apart than before
     for (const offset of [-1, 1]) {
       for (let index = 0; index < 4; index += 1) {
         this.particles.push({
           id: makeId("particle"),
-          x: player.x + backward.x * (player.radius * 0.88) + side.x * (player.radius * 0.33) * offset + rand(-2, 2),
-          y: player.y + backward.y * (player.radius * 0.88) + side.y * (player.radius * 0.33) * offset + rand(-2, 2),
+          x: player.x + backward.x * (player.radius * 0.88) + side.x * (player.radius * 0.52) * offset + rand(-2, 2),
+          y: player.y + backward.y * (player.radius * 0.88) + side.y * (player.radius * 0.52) * offset + rand(-2, 2),
           vx: player.vx + backward.x * rand(90, 180) + side.x * rand(-18, 18),
           vy: player.vy + backward.y * rand(90, 180) + side.y * rand(-18, 18),
           life: rand(0.22, 0.44),
@@ -2122,6 +2135,29 @@ export class CometBustersGame {
           radius: rand(1.5, 2.8),
         });
       }
+    }
+  }
+
+  spawnRcsThrusterParticles(player, turnInput) {
+    // Small steering puffs: fired from the FRONT sides of the ship
+    // (opposite side to the direction we're turning — reaction force)
+    const forward = vectorFromAngle(player.angle);
+    const side = perpendicular(forward.x, forward.y);
+    const fireOffset = 0.55; // slightly behind the nose
+    // When turning right (+1), the left-side RCS fires, and vice versa
+    const fireDir = -turnInput; // side to emit from
+    for (let index = 0; index < 2; index += 1) {
+      this.particles.push({
+        id: makeId("rcs"),
+        x: player.x + forward.x * (player.radius * fireOffset) + side.x * (player.radius * 0.5) * fireDir + rand(-1, 1),
+        y: player.y + forward.y * (player.radius * fireOffset) + side.y * (player.radius * 0.5) * fireDir + rand(-1, 1),
+        // Puff fires perpendicular to the ship (sideways)
+        vx: player.vx + side.x * fireDir * rand(30, 60) + rand(-8, 8),
+        vy: player.vy + side.y * fireDir * rand(30, 60) + rand(-8, 8),
+        life: rand(0.08, 0.18),
+        color: index === 0 ? "#c8f0ff" : "#88ccff",
+        radius: rand(0.8, 1.6),
+      });
     }
   }
 
@@ -2277,14 +2313,13 @@ export class CometBustersGame {
   }
 
   drawBackground(ctx) {
-    const glow = ctx.createRadialGradient(
-      this.width * 0.75,
-      this.height * 0.22,
-      0,
-      this.width * 0.75,
-      this.height * 0.22,
-      this.width * 0.36,
-    );
+    // Glow position drifts per level (seeded by level number)
+    const glowSeed = this.level ?? 1;
+    const glowX = this.width  * (0.3 + 0.5 * Math.abs(Math.sin(glowSeed * 1.37)));
+    const glowY = this.height * (0.12 + 0.55 * Math.abs(Math.sin(glowSeed * 0.91)));
+    const glowRadius = this.width * (0.28 + 0.14 * Math.abs(Math.sin(glowSeed * 0.63)));
+
+    const glow = ctx.createRadialGradient(glowX, glowY, 0, glowX, glowY, glowRadius);
     glow.addColorStop(0, this.theme.glow);
     glow.addColorStop(1, "rgba(0,0,0,0)");
     ctx.fillStyle = glow;
