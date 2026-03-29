@@ -486,7 +486,11 @@ export class CometBustersGame {
       this.betweenRoundsTimer -= deltaSeconds;
       if (this.betweenRoundsTimer <= 0) {
         this.betweenRoundsTimer = 0;
-        this.beginLevel(this.level + 1);
+        if (this.isGameOver()) {
+          this.processGameOverHighscore();
+        } else {
+          this.beginLevel(this.level + 1);
+        }
       }
     }
 
@@ -771,18 +775,33 @@ export class CometBustersGame {
 
     if (player.special === "shield") {
       player.shieldHeld = controls.special;
+      const loopKey = `shield_${player.id}`;
+      
       if (player.shieldHeld && player.specialCharge > 0 && player.specialLockout <= 0) {
         player.shieldActive = true;
         player.specialCharge = Math.max(0, player.specialCharge - player.stats.shieldDrain * deltaSeconds);
+        
+        let vol = 0.15;
+        if (player.specialCharge < 0.2) {
+          vol = 0.05 + 0.1 * Math.abs(Math.sin(this.clock * 28));
+        }
+        this.audio.playLoop("shield", { volume: vol, loopKey, x: player.x, screenWidth: this.width });
+
         if (player.specialCharge <= 0.001) {
           player.specialCharge = 0;
           player.shieldActive = false;
           player.specialLockout = SHIELD_LOCKOUT;
+          this.audio.stopLoop(loopKey);
         }
       } else {
+        if (player.shieldActive) {
+          this.audio.stopLoop(loopKey);
+        }
         player.shieldActive = false;
         if (player.specialLockout <= 0) {
+          const oldCharge = player.specialCharge;
           player.specialCharge = Math.min(1, player.specialCharge + player.stats.shieldRecharge * deltaSeconds);
+          if (oldCharge < 1 && player.specialCharge >= 1) this.audio.play("recharge", { volume: 0.1, x: player.x, screenWidth: this.width });
         }
       }
       return;
@@ -806,7 +825,9 @@ export class CometBustersGame {
           }
         }
       } else if (canRecharge) {
+        const oldCharge = player.specialCharge;
         player.specialCharge = Math.min(1, player.specialCharge + GENERIC_RECHARGE * deltaSeconds);
+        if (oldCharge < 1 && player.specialCharge >= 1) this.audio.play("recharge", { volume: 0.1 });
       }
       return;
     }
@@ -833,7 +854,9 @@ export class CometBustersGame {
           this.spawnVisualWave(player.x, player.y, 110, player.color, 0.55, 5);
         }
       } else if (canRecharge) {
+        const oldCharge = player.specialCharge;
         player.specialCharge = Math.min(1, player.specialCharge + GENERIC_RECHARGE * deltaSeconds);
+        if (oldCharge < 1 && player.specialCharge >= 1) this.audio.play("recharge", { volume: 0.1 });
       }
       return;
     }
@@ -859,7 +882,9 @@ export class CometBustersGame {
         this.audio.play("disrupter", { volume: 0.18 });
       } else {
         const rechargeRate = player.special === "disrupter" ? GENERIC_RECHARGE * 0.5 : GENERIC_RECHARGE;
+        const oldCharge = player.specialCharge;
         player.specialCharge = Math.min(1, player.specialCharge + rechargeRate * deltaSeconds);
+        if (oldCharge < 1 && player.specialCharge >= 1) this.audio.play("recharge", { volume: 0.1 });
       }
     }
   }
@@ -879,6 +904,31 @@ export class CometBustersGame {
         if (player.weaponCharge <= 0) {
           this.clearWeapon(player);
         }
+      }
+      return;
+    }
+
+    if (player.weaponType === "mega_destructor") {
+      if (controls.firePressed && player.weaponCharge > 0) {
+        this.shockwaves.push({
+          id: makeId("wave"),
+          kind: "shockwave",
+          ownerId: player.id,
+          x: player.x,
+          y: player.y,
+          radius: 0,
+          lastRadius: 0,
+          maxRadius: Math.max(this.width, this.height) * 1.5,
+          life: 1.5,
+          maxLife: 1.5,
+          tint: "rgba(185, 77, 255, 0.95)",
+          width: 25,
+          damaging: true,
+        });
+        player.weaponCharge = 0;
+        this.audio.play("mega_destructor", { volume: 0.5 });
+        this.cameraShake = Math.max(this.cameraShake, 1.5);
+        this.clearWeapon(player);
       }
       return;
     }
@@ -1076,6 +1126,30 @@ export class CometBustersGame {
       wave.lastRadius = wave.radius;
       const progress = 1 - Math.max(0, wave.life) / wave.maxLife;
       wave.radius = wave.maxRadius * Math.sin(progress * Math.PI * 0.5);
+
+      if (wave.damaging) {
+        for (const asteroid of this.asteroids) {
+          if (asteroid.dead) continue;
+          const delta = toroidalDistance(wave, asteroid, this.width, this.height);
+          if (delta.distance > wave.lastRadius && delta.distance <= wave.radius + asteroid.radius) {
+            this.destroyAsteroid(asteroid, wave.ownerId, false);
+          }
+        }
+        for (const crony of this.cronies) {
+          if (crony.dead) continue;
+          const delta = toroidalDistance(wave, crony, this.width, this.height);
+          if (delta.distance > wave.lastRadius && delta.distance <= wave.radius + crony.radius) {
+            this.destroyCrony(crony, wave.ownerId);
+          }
+        }
+        for (const ufo of this.ufos) {
+          if (ufo.dead) continue;
+          const delta = toroidalDistance(wave, ufo, this.width, this.height);
+          if (delta.distance > wave.lastRadius && delta.distance <= wave.radius + ufo.radius) {
+            this.destroyUfo(ufo, wave.ownerId);
+          }
+        }
+      }
     }
   }
 
@@ -1608,6 +1682,7 @@ export class CometBustersGame {
     this.audio.play(`explosion_${asteroid.size}`, {
       volume: asteroid.size === "large" ? 0.22 : 0.14,
       playbackRate: asteroid.size === "small" ? 1.4 : asteroid.size === "medium" ? 1.12 : 0.92,
+      x: asteroid.x, screenWidth: this.width
     });
     this.cameraShake = Math.max(this.cameraShake, asteroid.size === "large" ? 0.58 : 0.26);
   }
@@ -1625,7 +1700,7 @@ export class CometBustersGame {
       pulse: rand(0, TWO_PI),
       dead: false,
     });
-    this.audio.play("crony_spawn", { volume: 0.08, playbackRate: rand(0.9, 1.15) });
+    this.audio.play("crony_spawn", { volume: 0.4, playbackRate: rand(0.9, 1.15) });
   }
 
   destroyCrony(crony, scorerId = null) {
@@ -1655,6 +1730,9 @@ export class CometBustersGame {
     player.alive = false;
     player.hyperspaceHidden = false;
     player.cloakActive = false;
+    if (player.shieldActive) {
+      this.audio.stopLoop(`shield_${player.id}`);
+    }
     player.shieldActive = false;
     player.shieldHeld = false;
     player.lives = Math.max(0, player.lives - 1);
@@ -1665,6 +1743,11 @@ export class CometBustersGame {
     player.weaponLatchTimer = 0;
     this.spawnExplosion(player.x, player.y, player.color, 1.55, player.vx, player.vy, true);
     this.audio.play("explosion_ship", { volume: 0.28, playbackRate: 0.74 });
+
+    if (player.lives <= 0 && !this.isGameOver()) {
+      this.audio.play("player_out", { volume: 0.4 });
+    }
+
     this.cameraShake = Math.max(this.cameraShake, 0.72);
 
     if (attackerId && attackerId !== player.id) {
@@ -1871,11 +1954,17 @@ export class CometBustersGame {
     }
 
     this.gameOverHandled = true;
+    this.highscoreHandled = false;
     this.audio.play("game_over", { volume: 0.22, playbackRate: 0.94 });
     this.betweenRoundsTimer = 3.6;
     this.bannerText = t("game.gameover");
     this.bannerSubtext = t("game.levelSub", { level: this.level });
     this.bannerPulse = 3.2;
+  }
+
+  processGameOverHighscore() {
+    if (this.highscoreHandled || this.betweenRoundsTimer > 0) return;
+    this.highscoreHandled = true;
 
     const candidates = this.players
       .filter((player) => qualifiesForHighscore(this.highscores, player.score))
@@ -1971,12 +2060,16 @@ export class CometBustersGame {
   }
 
   tryItemSpawn(deltaSeconds) {
+    if (this.settings.options.itemsEnabled === false) return;
     this.itemSpawnTimer -= deltaSeconds;
     if (this.level < 2 || !this.waveActive || this.itemSpawnTimer > 0 || this.items.some((item) => !item.dead)) {
       return;
     }
 
-    const type = ITEM_TYPES[randInt(0, ITEM_TYPES.length - 1)].id;
+    const standardItems = ITEM_TYPES.filter(t => t.id !== "mega_destructor");
+    const type = Math.random() < 0.08 
+      ? "mega_destructor" 
+      : standardItems[randInt(0, standardItems.length - 1)].id;
     const position = this.findSafeLocation(40);
     this.items.push(this.createItem(type, position.x, position.y));
     this.itemSpawnTimer = rand(ITEM_SPAWN_MIN, ITEM_SPAWN_MAX);
@@ -2209,11 +2302,14 @@ export class CometBustersGame {
       const alpha = clamp(particle.life / 0.8, 0, 1);
       ctx.globalAlpha = alpha;
       ctx.fillStyle = particle.color;
-      ctx.beginPath();
-      ctx.arc(particle.x, particle.y, particle.radius, 0, TWO_PI);
-      ctx.fill();
-      ctx.globalAlpha = 1;
+      
+      this.drawWrapped(particle, particle.radius + 2, (x, y) => {
+        ctx.beginPath();
+        ctx.arc(x, y, Math.max(0.1, particle.radius), 0, TWO_PI);
+        ctx.fill();
+      });
     }
+    ctx.globalAlpha = 1;
   }
 
   drawShockwaves(ctx) {
@@ -2463,18 +2559,30 @@ export class CometBustersGame {
       gradient.addColorStop(0, "rgba(255,255,255,0.95)");
       gradient.addColorStop(0.25, beam.color);
       gradient.addColorStop(1, "rgba(255,255,255,0.08)");
-      ctx.strokeStyle = gradient;
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.moveTo(beam.start.x, beam.start.y);
-      ctx.lineTo(beam.end.x, beam.end.y);
-      ctx.stroke();
-      ctx.strokeStyle = "rgba(255,255,255,0.22)";
-      ctx.lineWidth = 10;
-      ctx.beginPath();
-      ctx.moveTo(beam.start.x, beam.start.y);
-      ctx.lineTo(beam.end.x, beam.end.y);
-      ctx.stroke();
+
+      const coords = [
+        { offsetX: 0, offsetY: 0 },
+        { offsetX: -this.width, offsetY: 0 },
+        { offsetX: this.width, offsetY: 0 },
+        { offsetX: 0, offsetY: -this.height },
+        { offsetX: 0, offsetY: this.height }
+      ];
+
+      for (const offset of coords) {
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(beam.start.x + offset.offsetX, beam.start.y + offset.offsetY);
+        ctx.lineTo(beam.end.x + offset.offsetX, beam.end.y + offset.offsetY);
+        ctx.stroke();
+
+        ctx.strokeStyle = "rgba(255,255,255,0.22)";
+        ctx.lineWidth = 10;
+        ctx.beginPath();
+        ctx.moveTo(beam.start.x + offset.offsetX, beam.start.y + offset.offsetY);
+        ctx.lineTo(beam.end.x + offset.offsetX, beam.end.y + offset.offsetY);
+        ctx.stroke();
+      }
     }
   }
 
@@ -2585,6 +2693,7 @@ export class CometBustersGame {
         player.specialCharge,
         player.color,
         player.specialLockout > 0 ? "#ff6a7c" : "rgba(255,255,255,0.12)",
+        player.specialCharge >= 1
       );
 
       const weaponLabel = player.weaponType ? getItemLabel(player.weaponType) : "Weapon Slot";
@@ -2598,6 +2707,7 @@ export class CometBustersGame {
         player.weaponCharge / 2,
         player.weaponType ? this.getItemColor(player.weaponType) : "#3d4d5f",
         "rgba(255,255,255,0.08)",
+        player.weaponCharge > 0 && player.weaponLatchTimer <= 0
       );
       ctx.font = '20px "Lucida Console", "Courier New", monospace';
     });
@@ -2616,11 +2726,19 @@ export class CometBustersGame {
     ctx.restore();
   }
 
-  drawMeterBar(ctx, x, y, width, fill, color, backColor) {
+  drawMeterBar(ctx, x, y, width, fill, color, backColor, showGlow = false) {
     ctx.fillStyle = backColor;
     ctx.fillRect(x, y, width, 8);
-    ctx.strokeStyle = "rgba(127, 230, 255, 0.55)";
+    if (showGlow) {
+      const pulse = 0.6 + Math.abs(Math.sin(this.clock * 8)) * 0.4;
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 8 * pulse;
+      ctx.strokeStyle = `rgba(255, 255, 255, ${pulse})`;
+    } else {
+      ctx.strokeStyle = "rgba(127, 230, 255, 0.55)";
+    }
     ctx.strokeRect(x, y, width, 8);
+    ctx.shadowBlur = 0;
     ctx.fillStyle = color;
     ctx.fillRect(x + 1, y + 1, Math.max(0, width - 2) * clamp(fill, 0, 1), 6);
   }

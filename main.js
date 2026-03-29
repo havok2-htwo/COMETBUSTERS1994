@@ -22,6 +22,7 @@ const elements = {
   asteroidBilliards: document.querySelector("#asteroid-billiards"),
   insanityMode: document.querySelector("#insanity-mode"),
   friendlyFire: document.querySelector("#friendly-fire"),
+  itemsEnabled: document.querySelector("#items-enabled"),
   particlesEnabled: document.querySelector("#particles-enabled"),
   screenShake: document.querySelector("#screen-shake"),
   pixelFilter: document.querySelector("#pixel-filter"),
@@ -66,7 +67,7 @@ const textures = {};
   const paths = [
     "spaceship/player1", "spaceship/player2", "spaceship/player3", "spaceship/player4",
     "ufo/ufo", "crony/crony",
-    "items/rocket", "items/gatling", "items/laser", "items/shield"
+    "items/rocket", "items/gatling", "items/laser", "items/mega_destructor"
   ];
   for (let i = 1; i <= 11; i++) {
     paths.push(`asteroid/level_${i}/L`);
@@ -295,6 +296,7 @@ function renderOptions() {
   elements.asteroidBilliards.checked = settings.options.asteroidBilliards;
   elements.insanityMode.checked = settings.options.insanityMode;
   elements.friendlyFire.checked = settings.options.friendlyFire;
+  elements.itemsEnabled.checked = settings.options.itemsEnabled ?? true;
   elements.particlesEnabled.checked = settings.options.particlesEnabled;
   elements.screenShake.checked = settings.options.screenShake;
   elements.pixelFilter.checked = settings.options.pixelFilter;
@@ -399,6 +401,7 @@ elements.playerCount.addEventListener("change", (event) => {
   ["asteroidBilliards", elements.asteroidBilliards],
   ["insanityMode", elements.insanityMode],
   ["friendlyFire", elements.friendlyFire],
+  ["itemsEnabled", elements.itemsEnabled],
   ["particlesEnabled", elements.particlesEnabled],
   ["screenShake", elements.screenShake],
   ["pixelFilter", elements.pixelFilter],

@@ -258,7 +258,3 @@ This means:
 - `game.js` is still in the project but currently not loaded by `index.html`. It serves as an older development baseline.
 - The game is primarily intended for desktop browsers and local multiplayer setups. There are currently no touch controls.
 - As localization was recently introduced, minor inconsistencies in text strings or filenames might still pop up.
-
-## Reference Material
-
-The files in `old_reference_images/` were used as visual guidelines for art style, HUD, and overall mood. If the folder is missing or altered locally, it has no impact on running the game.

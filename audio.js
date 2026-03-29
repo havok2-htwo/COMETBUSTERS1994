@@ -25,6 +25,9 @@ export const SOUND_EVENTS = [
   "ufo_fire",
   "ufo_die",
   "respawn",
+  "recharge",
+  "player_out",
+  "mega_destructor"
 ];
 
 function pickRandom(values) {
@@ -46,6 +49,7 @@ export class AudioManager {
     this.musicVolume = 0.5;
     this.currentMusicSource = null;
     this.musicGainNode = null;
+    this.loops = new Map();
 
     this.unlock = this.unlock.bind(this);
     window.addEventListener("pointerdown", this.unlock, { once: true });
@@ -208,6 +212,41 @@ export class AudioManager {
     this.currentMusicSource = source;
   }
 
+  _applyPanning(sourceNode, baseVolume, options) {
+    if (!this.context) return { gainLeft: null, gainRight: null, merger: null };
+
+    const gainLeft = this.context.createGain();
+    const gainRight = this.context.createGain();
+
+    let leftVol = baseVolume;
+    let rightVol = baseVolume;
+
+    const skipStereo = ["game_start", "game_over", "wave_start", "wave_clear", "respawn", "item_pickup", "shield", "recharge"].includes(options.eventName);
+
+    if (options.x !== undefined && options.screenWidth && !skipStereo) {
+      const fraction = options.x / options.screenWidth;
+      if (fraction < 0.333) {
+        rightVol = baseVolume * (0.5 + 0.5 * (fraction / 0.333));
+      } else if (fraction > 0.666) {
+        leftVol = baseVolume * (1.0 - 0.5 * ((fraction - 0.666) / 0.334));
+      }
+    }
+
+    gainLeft.gain.value = leftVol;
+    gainRight.gain.value = rightVol;
+
+    const merger = this.context.createChannelMerger(2);
+    merger.connect(this.context.destination);
+
+    gainLeft.connect(merger, 0, 0);
+    gainRight.connect(merger, 0, 1);
+
+    sourceNode.connect(gainLeft);
+    sourceNode.connect(gainRight);
+
+    return { gainLeft, gainRight, merger };
+  }
+
   play(name, options = {}) {
     if (!this.enabled) {
       return;
@@ -215,31 +254,33 @@ export class AudioManager {
 
     const volume = (options.volume ?? 0.22) * this.sfxVolume * 2;
     const playbackRate = options.playbackRate ?? 1;
+    options.eventName = name;
 
     if (!this.context || this.context.state !== "running") {
-      this.playFallback(name, volume, playbackRate);
+      this.playFallback(name, volume, playbackRate, options);
       return;
     }
 
     const variants = this.buffers.get(name);
     const buffer = pickRandom(variants);
     if (!buffer) {
-      this.playFallback(name, volume, playbackRate);
+      this.playFallback(name, volume, playbackRate, options);
       return;
     }
 
     const gainNode = this.context.createGain();
-    gainNode.gain.value = volume;
-    gainNode.connect(this.context.destination);
-
+    gainNode.gain.value = 1.0; 
+    
     const source = this.context.createBufferSource();
     source.buffer = buffer;
     source.playbackRate.value = playbackRate;
     source.connect(gainNode);
+
+    this._applyPanning(gainNode, volume, options);
     source.start();
   }
 
-  playFallback(name, volume, playbackRate = 1) {
+  playFallback(name, volume, playbackRate = 1, options = {}) {
     if (!this.context) {
       return;
     }
@@ -271,6 +312,9 @@ export class AudioManager {
       ufo_fire: { from: 320, to: 180, duration: 0.1, type: "square" },
       ufo_die: { from: 260, to: 70, duration: 0.2, type: "sawtooth" },
       respawn: { from: 360, to: 540, duration: 0.14, type: "triangle" },
+      recharge: { from: 440, to: 880, duration: 0.1, type: "sine" },
+      player_out: { from: 220, to: 30, duration: 0.6, type: "sawtooth" },
+      mega_destructor: { from: 120, to: 20, duration: 0.8, type: "square" },
     };
 
     const profile = profiles[name] ?? profiles.player_shot;
@@ -283,12 +327,80 @@ export class AudioManager {
       now + profile.duration,
     );
 
-    gainNode.gain.setValueAtTime(Math.max(0.0001, volume), now);
+    gainNode.gain.setValueAtTime(Math.max(0.0001, 1.0), now);
     gainNode.gain.exponentialRampToValueAtTime(0.0001, now + profile.duration);
 
     oscillator.connect(gainNode);
-    gainNode.connect(this.context.destination);
+    this._applyPanning(gainNode, volume, options);
+
     oscillator.start(now);
     oscillator.stop(now + profile.duration);
+  }
+
+  playLoop(name, options = {}) {
+    if (!this.enabled || !this.context || this.context.state !== "running") return;
+
+    const loopKey = options.loopKey ?? name;
+
+    // If loop already running, just update volume/pan in-place
+    const existing = this.loops.get(loopKey);
+    if (existing) {
+      const vol = (options.volume ?? 0.2) * this.sfxVolume * 2;
+      existing.gainNode.gain.value = vol;
+      if (existing.panner && options.x !== undefined && options.screenWidth) {
+        // Convert 0-33% left / 66-100% right to StereoPanner range [-1, 1]
+        const frac = options.x / options.screenWidth;
+        const pan = (frac - 0.5) * 2; // -1 (full left) to +1 (full right)
+        // Clamp so centre zone stays at 0, edges reach max ±0.5 (~-6dB)
+        existing.panner.pan.value = Math.max(-0.5, Math.min(0.5, pan * 0.5));
+      }
+      return;
+    }
+
+    // Build the audio graph ONCE
+    const gainNode = this.context.createGain();
+    gainNode.gain.value = (options.volume ?? 0.2) * this.sfxVolume * 2;
+
+    let panner = null;
+    try {
+      panner = this.context.createStereoPanner();
+      panner.pan.value = 0;
+      gainNode.connect(panner);
+      panner.connect(this.context.destination);
+    } catch (_) {
+      // StereoPanner not supported – connect directly
+      gainNode.connect(this.context.destination);
+    }
+
+    const variants = this.buffers.get(name);
+    const buffer = variants ? pickRandom(variants) : null;
+
+    let source;
+    if (buffer) {
+      source = this.context.createBufferSource();
+      source.buffer = buffer;
+      source.loop = true;
+      source.connect(gainNode);
+      source.start(0);
+    } else {
+      // Fallback: oscillator
+      source = this.context.createOscillator();
+      source.type = "sawtooth";
+      source.frequency.value = 180;
+      source.connect(gainNode);
+      source.start(0);
+    }
+
+    this.loops.set(loopKey, { source, gainNode, panner });
+  }
+
+  stopLoop(name) {
+    const entry = this.loops.get(name);
+    if (!entry) return;
+    try { entry.source.stop(); } catch (_) {}
+    try { entry.source.disconnect(); } catch (_) {}
+    try { entry.gainNode.disconnect(); } catch (_) {}
+    try { entry.panner?.disconnect(); } catch (_) {}
+    this.loops.delete(name);
   }
 }

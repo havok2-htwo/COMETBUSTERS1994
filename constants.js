@@ -102,6 +102,12 @@ export const ITEM_TYPES = [
     color: "#ff6fd1",
     glow: "rgba(255, 111, 209, 0.45)",
   },
+  {
+    id: "mega_destructor",
+    label: "Mega Destructor",
+    color: "#b94dff",
+    glow: "rgba(185, 77, 255, 0.45)",
+  },
 ];
 export const TUNING_FIELDS = ["speed", "thrust", "shield", "burst"];
 export const TUNING_TOTAL = 20;
@@ -173,6 +179,7 @@ export function createDefaultSettings() {
       asteroidBilliards: false,
       insanityMode: false,
       friendlyFire: false,
+      itemsEnabled: true,
       particlesEnabled: true,
       screenShake: true,
       audioEnabled: true,
