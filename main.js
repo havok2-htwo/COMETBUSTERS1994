@@ -25,6 +25,7 @@ const elements = {
   particlesEnabled: document.querySelector("#particles-enabled"),
   screenShake: document.querySelector("#screen-shake"),
   pixelFilter: document.querySelector("#pixel-filter"),
+  pixelSize: document.querySelector("#pixel-size"),
   audioEnabled: document.querySelector("#audio-enabled"),
   sfxVolume: document.querySelector("#sfx-volume"),
   musicVolume: document.querySelector("#music-volume"),
@@ -297,6 +298,7 @@ function renderOptions() {
   elements.particlesEnabled.checked = settings.options.particlesEnabled;
   elements.screenShake.checked = settings.options.screenShake;
   elements.pixelFilter.checked = settings.options.pixelFilter;
+  elements.pixelSize.value = String(settings.options.pixelSize ?? 1.5);
   elements.audioEnabled.checked = settings.options.audioEnabled;
   elements.sfxVolume.value = String(settings.options.sfxVolume ?? 50);
   elements.musicVolume.value = String(settings.options.musicVolume ?? 50);
@@ -406,6 +408,14 @@ elements.playerCount.addEventListener("change", (event) => {
     settings.options[key] = element.checked;
     saveAndRefresh();
   });
+});
+
+elements.pixelSize.addEventListener("input", () => {
+  settings.options.pixelSize = Number(elements.pixelSize.value);
+});
+elements.pixelSize.addEventListener("change", () => {
+  settings.options.pixelSize = Number(elements.pixelSize.value);
+  saveAndRefresh();
 });
 
 [

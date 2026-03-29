@@ -2165,7 +2165,7 @@ export class CometBustersGame {
     if (this.settings.options.pixelFilter) {
       const w = this.canvas.width;
       const h = this.canvas.height;
-      const pxSize = 1.1;
+      const pxSize = this.settings.options.pixelSize ?? 1.5;
       const scaledW = Math.ceil(w / pxSize);
       const scaledH = Math.ceil(h / pxSize);
       

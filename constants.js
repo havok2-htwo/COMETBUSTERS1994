@@ -177,6 +177,7 @@ export function createDefaultSettings() {
       screenShake: true,
       audioEnabled: true,
       pixelFilter: false,
+      pixelSize: 1.5,
       sfxVolume: 50,
       musicVolume: 50,
     },
