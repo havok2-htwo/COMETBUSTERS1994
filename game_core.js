@@ -28,7 +28,7 @@ const CRONY_THRUST = 144;
 const CRONY_MAX_SPEED = 270;
 const ITEM_MAX_SPEED = 90;
 const ROCKET_SPEED = 500;
-const ROCKET_HOMING = 260;
+const ROCKET_HOMING = 460;
 const ROCKET_MAX_SPEED = 620;
 const ROCKET_VOLLEY_SIZE = 5;
 const ROCKET_LIFETIME = 7.5;
@@ -1529,6 +1529,7 @@ export class CometBustersGame {
       this.applyImpactAtPoint(player, direction.x, direction.y, pushStrength * 0.3 * bounceMultiplier, hitX, hitY);
       this.spawnSpark(hitX, hitY, player.color);
       this.audio.play("player_hit_push", { volume: 0.35, playbackRate: rand(0.9, 1.1) });
+      if (player.shieldActive) player.specialCharge = Math.max(0, player.specialCharge - 0.03);
       return;
     }
 
@@ -1561,7 +1562,8 @@ export class CometBustersGame {
         });
 
         if (player.shieldActive || player.invulnerableTimer > 0) {
-          this.applyImpactAtPoint(player, -heading.x, -heading.y, 90, player.x, player.y);
+          this.applyImpactAtPoint(player, -heading.x, -heading.y, 250, player.x, player.y);
+          if (player.shieldActive) player.specialCharge = Math.max(0, player.specialCharge - 0.03);
         } else {
           this.destroyPlayer(player);
         }
@@ -1574,6 +1576,8 @@ export class CometBustersGame {
 
         if (player.shieldActive || player.invulnerableTimer > 0) {
           this.destroyCrony(crony, player.id);
+          this.applyImpactAtPoint(player, -delta.dx, -delta.dy, 120, player.x, player.y);
+          if (player.shieldActive) player.specialCharge = Math.max(0, player.specialCharge - 0.03);
         } else {
           this.destroyPlayer(player);
           this.destroyCrony(crony, player.id);
@@ -1587,6 +1591,8 @@ export class CometBustersGame {
 
         if (player.shieldActive || player.invulnerableTimer > 0) {
           this.destroyUfo(ufo, player.id);
+          this.applyImpactAtPoint(player, -delta.dx, -delta.dy, 160, player.x, player.y);
+          if (player.shieldActive) player.specialCharge = Math.max(0, player.specialCharge - 0.03);
         } else {
           this.destroyPlayer(player);
           this.destroyUfo(ufo);
@@ -1612,18 +1618,22 @@ export class CometBustersGame {
 
         if (playerA.shieldActive && playerB.shieldActive) {
           this.resolveBounce(playerA, playerB, playerA.stats.mass, playerB.stats.mass, delta);
+          if (playerA.shieldActive) playerA.specialCharge = Math.max(0, playerA.specialCharge - 0.03);
+          if (playerB.shieldActive) playerB.specialCharge = Math.max(0, playerB.specialCharge - 0.03);
           continue;
         }
 
         if (playerA.shieldActive && !playerB.shieldActive) {
           this.destroyPlayer(playerB, playerA.id);
           this.applyImpactAtPoint(playerA, -delta.dx, -delta.dy, 120, playerA.x, playerA.y);
+          if (playerA.shieldActive) playerA.specialCharge = Math.max(0, playerA.specialCharge - 0.03);
           continue;
         }
 
         if (playerB.shieldActive && !playerA.shieldActive) {
           this.destroyPlayer(playerA, playerB.id);
           this.applyImpactAtPoint(playerB, delta.dx, delta.dy, 120, playerB.x, playerB.y);
+          if (playerB.shieldActive) playerB.specialCharge = Math.max(0, playerB.specialCharge - 0.03);
           continue;
         }
 
@@ -2131,6 +2141,7 @@ export class CometBustersGame {
       player.angle = spawnPoint.angle;
       player.angularVelocity = 0;
       player.alive = true;
+      player.specialCharge = 1;
       player.invulnerableTimer = player.stats.spawnInvulnerability;
       this.spawnBurst(player.x, player.y, player.color, 24, 120, 0.9);
       this.audio.play("respawn", { volume: 0.08, playbackRate: rand(0.96, 1.08) });

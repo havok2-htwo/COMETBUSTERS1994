@@ -20,7 +20,7 @@ Local browser arcade game as a tribute to `Comet Busters!` from 1994. The projec
 - Free assignment of names, input devices, and specials per pilot.
 - Four tuning values per player: `Speed`, `Thrust`, `Shield`, `Burst`.
 - Fixed total tuning sum of `20` to keep all builds comparable.
-- `5` lives per player, safe respawns, and local highscore entry with initials.
+- `5` lives per player, safe respawns (with fully recharged special abilities), and local highscore entry with initials.
 - Wrap-around playfield without friction (ships, bullets, particles, and force effects all wrap correctly).
 - Asteroids in `large`, `medium`, `small` with split logic.
 - `46` unique asteroid themes that cycle once all are played. Each level features a different asteroid graphic and name.
@@ -65,7 +65,7 @@ The steppers in the setup automatically ensure the sum remains exactly `20`.
 
 ## Specials
 
-- `Shield`: Channelled instead of a single trigger. Grants brief invulnerability and destroys objects on direct impact. If the charge is completely depleted, a lockout triggers before it can be recharged.
+- `Shield`: Channelled instead of a single trigger. Grants brief invulnerability and destroys objects on direct impact, but loses a small amount of charge (`3%`) per hit. Blocking heavy objects imparts physical feedback (bouncing/rotation). If the charge is completely depleted, a lockout triggers before it can be recharged.
 - `Hyperspace`: Hides the ship for a few seconds and then reappears at the safest possible random location.
 - `Disrupter`: Unleashes an expanding shockwave. It destroys bullets, cronies, and UFOs, breaks asteroids, and pushes other players away.
 - `Cloak`: Makes the player invisible to cronies and other targeting systems. If the effect ends while the ship is inside an object, the player dies.
@@ -74,7 +74,7 @@ The steppers in the setup automatically ensure the sum remains exactly `20`.
 
 Starting from `Level 2`, a floating pickup can appear on the field:
 
-- `Rocket`: Fires a burst of `5` homing missiles with extended lifetime (`7.5s`). Rockets stay in play about `25%` longer than standard bullets.
+- `Rocket`: Fires a burst of `5` highly maneuverable homing missiles with extended lifetime (`7.5s`) that prioritize Cronies and UFOs. Rockets stay in play about `25%` longer than standard bullets.
 - `Gatling`: Very fast rapid-fire variant of the standard weapon.
 - `Laser`: Continuous beam instead of individual projectiles. Wraps around screen edges.
 - `Mega Destructor` *(rare – ~8% spawn chance)*: Fires a single, massive expanding shockwave that destroys asteroids, cronies, and UFOs but does **not** destroy bullets. Accompanied by heavy camera shake.
@@ -92,7 +92,7 @@ The `Items` option in the setup panel can be disabled entirely for a pure ships-
 - Destroying asteroids has a chance to spawn Cronies.
 - UFOs start appearing from `Level 4` onwards. UFOs also experience recoil when firing.
 - Every wave looks for secure spawn locations for asteroids so players aren't instantly overrun.
-- Respawns only occur when a spawn point is clear enough.
+- Respawns only occur when a spawn point is clear enough and will fully restore a player's special ability charge.
 - The game cycles through `46` unique asteroid levels before repeating.
 
 ## Game Modes and Options
