@@ -86,6 +86,7 @@ export const LOCALE_DATA = {
     "item.laser.label": "Laser",
     "item.shield.label": "Shield",
     "item.extra_life.label": "Extra Life",
+    "item.mega_destructor.label": "Mega Destructor",
 
     "game.wave": "WAVE",
     "game.start": "START",
@@ -184,6 +185,7 @@ export const LOCALE_DATA = {
     "item.laser.label": "Laser",
     "item.shield.label": "Shield",
     "item.extra_life.label": "Extraleben",
+    "item.mega_destructor.label": "Mega-Zerstörer",
 
     "game.wave": "WELLE",
     "game.start": "START",
@@ -282,6 +284,7 @@ export const LOCALE_DATA = {
     "item.laser.label": "Laser",
     "item.shield.label": "Bouclier",
     "item.extra_life.label": "Vie Extra",
+    "item.mega_destructor.label": "Méga Destructeur",
 
     "game.wave": "VAGUE",
     "game.start": "DÉMARRER",
@@ -380,6 +383,7 @@ export const LOCALE_DATA = {
     "item.laser.label": "Láser",
     "item.shield.label": "Escudo",
     "item.extra_life.label": "Vida Extra",
+    "item.mega_destructor.label": "Mega Destructor",
 
     "game.wave": "OLA",
     "game.start": "INICIO",
@@ -478,6 +482,7 @@ export const LOCALE_DATA = {
     "item.laser.label": "Laser",
     "item.shield.label": "Scudo",
     "item.extra_life.label": "Vita Extra",
+    "item.mega_destructor.label": "Mega Distruttore",
 
     "game.wave": "ONDATA",
     "game.start": "AVVIO",

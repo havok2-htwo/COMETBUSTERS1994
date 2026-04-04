@@ -341,9 +341,9 @@ export class CometBustersGame {
     const burst = clamp(Number(tuning.burst ?? 5), 1, 13);
 
     return {
-      maxSpeed: 108 + speed * 18,
-      thrustPower: 68 + thrust * 19,
-      turnAcceleration: (8.4 + speed * 0.44) * 1.5,
+      maxSpeed: 135 + speed * 22.5,
+      thrustPower: 85 + thrust * 23.75,
+      turnAcceleration: (8.4 + speed * 0.44) * 1.875,
       turnDrag: 3.6,
       mass: 28 + shield * 2.5,
       bulletCooldown: clamp(0.3 - burst * 0.015, 0.08, 0.3),
