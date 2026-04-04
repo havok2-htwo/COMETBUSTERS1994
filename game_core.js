@@ -348,7 +348,7 @@ export class CometBustersGame {
       mass: 28 + shield * 2.5,
       bulletCooldown: clamp(0.3 - burst * 0.015, 0.08, 0.3),
       spawnInvulnerability: 1.9,
-      shieldDrain: clamp(0.42 - shield * 0.014, 0.19, 0.42),
+      shieldDrain: clamp(0.42 - shield * 0.014, 0.19, 0.42) / 1.5,
       shieldRecharge: 0.1 + shield * 0.013,
       specialRecharge: GENERIC_RECHARGE,
       impactScale: 1 + speed * 0.035,
@@ -835,16 +835,17 @@ export class CometBustersGame {
     if (player.special === "cloak") {
       if (controls.specialPressed && !player.cloakActive && player.specialCharge >= 1 && player.specialLockout <= 0) {
         player.cloakActive = true;
-        player.specialActiveTimer = 4.6;
-        player.specialCharge = 0;
+        player.specialActiveTimer = 9.2;
         this.spawnVisualWave(player.x, player.y, 70, "rgba(213, 241, 255, 0.65)", 0.4, 5);
         this.audio.play("shield", { volume: 0.12, playbackRate: 1.5 });
       }
 
       if (player.cloakActive) {
         player.specialActiveTimer -= deltaSeconds;
+        player.specialCharge = Math.max(0, player.specialActiveTimer / 9.2);
         if (player.specialActiveTimer <= 0) {
           player.cloakActive = false;
+          player.specialCharge = 0;
           if (this.overlapsSolid(player)) {
             this.destroyPlayer(player);
           }
@@ -1656,6 +1657,13 @@ export class CometBustersGame {
             if (player.lives < maxLives) {
               player.lives += 1;
             }
+          } else if (item.type === "revive") {
+            const deadPlayers = this.players.filter(p => !p.alive && p.lives <= 0).sort((a,b) => b.deathOrder - a.deathOrder);
+            if (deadPlayers.length > 0) {
+               const target = deadPlayers[0];
+               target.lives = 3;
+               target.respawnTimer = 0.5;
+            }
           } else {
             player.weaponType = item.type;
             player.weaponCharge = 2;
@@ -1853,6 +1861,10 @@ export class CometBustersGame {
     player.shieldActive = false;
     player.shieldHeld = false;
     player.lives = Math.max(0, player.lives - 1);
+    if (player.lives <= 0) {
+      this.deathOrderCounter = (this.deathOrderCounter || 0) + 1;
+      player.deathOrder = this.deathOrderCounter;
+    }
     player.respawnTimer = player.lives > 0 ? RESPAWN_DELAY : 0;
     player.weaponType = null;
     player.weaponCharge = 0;
@@ -2184,15 +2196,21 @@ export class CometBustersGame {
       return;
     }
 
-    const standardItems = ITEM_TYPES.filter(t => t.id !== "mega_destructor" && t.id !== "extra_life");
-    const roll = Math.random();
+    const standardItems = ITEM_TYPES.filter(t => t.id !== "mega_destructor" && t.id !== "extra_life" && t.id !== "revive");
+    const anyDead = this.players.some(p => !p.alive && p.lives <= 0);
     let type;
-    if (roll < 0.08) {
-      type = "mega_destructor";
-    } else if (roll < 0.18) {
-      type = "extra_life";
+    
+    if (anyDead && Math.random() < 0.30) {
+      type = "revive";
     } else {
-      type = standardItems[randInt(0, standardItems.length - 1)].id;
+      const roll = Math.random();
+      if (roll < 0.08) {
+        type = "mega_destructor";
+      } else if (roll < 0.18) {
+        type = "extra_life";
+      } else {
+        type = standardItems[randInt(0, standardItems.length - 1)].id;
+      }
     }
     const position = this.findSafeLocation(40);
     this.items.push(this.createItem(type, position.x, position.y));

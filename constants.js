@@ -498,6 +498,12 @@ export const ITEM_TYPES = [
     color: "#ff4080",
     glow: "rgba(255, 64, 128, 0.50)",
   },
+  {
+    id: "revive",
+    label: "Revive",
+    color: "#00ffff",
+    glow: "rgba(0, 255, 255, 0.50)",
+  },
 ];
 export const TUNING_FIELDS = ["speed", "thrust", "shield", "burst"];
 export const TUNING_TOTAL = 20;

@@ -67,7 +67,7 @@ const textures = {};
   const paths = [
     "spaceship/player1", "spaceship/player2", "spaceship/player3", "spaceship/player4",
     "ufo/ufo", "crony/crony",
-    "items/rocket", "items/gatling", "items/laser", "items/mega_destructor", "items/extra_life"
+    "items/rocket", "items/gatling", "items/laser", "items/mega_destructor", "items/extra_life", "items/revive"
   ];
   for (let i = 1; i <= 46; i++) {
     paths.push(`asteroid/level_${i}/L`);
@@ -84,6 +84,10 @@ const textures = {};
 const game = new CometBustersGame(elements.canvas, input, audio, textures, {
   onPauseChange: (paused) => {
     elements.pauseOverlay.classList.toggle("hidden", !paused);
+    if (paused && typeof pauseMenuIndex !== "undefined") {
+      pauseMenuIndex = 0;
+      pauseMenuButtons[0].focus();
+    }
   },
   onHighscoreRequest: (entries, done) => {
     highscoreQueue = [...entries];
@@ -537,5 +541,56 @@ elements.highscoreForm.addEventListener("submit", (event) => {
 });
 
 setInterval(renderGamepadStatus, 1200);
+
+let pauseMenuIndex = 0;
+const pauseMenuButtons = [elements.resumeButton, elements.restartButton, elements.openSettingsButton];
+let lastPadState = {};
+let lastButtonAction = 0;
+
+function pollPauseMenuGamepad() {
+  requestAnimationFrame(pollPauseMenuGamepad);
+  if (elements.pauseOverlay.classList.contains("hidden")) return;
+  
+  const now = Date.now();
+  if (now - lastButtonAction < 150) return;
+
+  const gamepads = navigator.getGamepads ? Array.from(navigator.getGamepads()).filter(Boolean) : [];
+  let dpadLeft = false, dpadRight = false, btnA = false, btnB = false;
+  
+  for (const pad of gamepads) {
+    const left = pad.buttons[14]?.pressed || pad.axes[0] < -0.35;
+    const right = pad.buttons[15]?.pressed || pad.axes[0] > 0.35;
+    const a = pad.buttons[0]?.pressed;
+    const b = pad.buttons[1]?.pressed;
+    const start = pad.buttons[9]?.pressed;
+    
+    if (left && !lastPadState[pad.index]?.left) dpadLeft = true;
+    if (right && !lastPadState[pad.index]?.right) dpadRight = true;
+    if (a && !lastPadState[pad.index]?.a) btnA = true;
+    if (b && !lastPadState[pad.index]?.b) btnB = true;
+
+    lastPadState[pad.index] = {left, right, a, b, start};
+  }
+
+  if (dpadLeft) {
+    pauseMenuIndex = (pauseMenuIndex - 1 + pauseMenuButtons.length) % pauseMenuButtons.length;
+    pauseMenuButtons[pauseMenuIndex].focus();
+    lastButtonAction = now;
+  }
+  if (dpadRight) {
+    pauseMenuIndex = (pauseMenuIndex + 1) % pauseMenuButtons.length;
+    pauseMenuButtons[pauseMenuIndex].focus();
+    lastButtonAction = now;
+  }
+  if (btnA) {
+    pauseMenuButtons[pauseMenuIndex].click();
+    lastButtonAction = now;
+  }
+  if (btnB) {
+    elements.resumeButton.click();
+    lastButtonAction = now;
+  }
+}
+pollPauseMenuGamepad();
 
 renderAll();

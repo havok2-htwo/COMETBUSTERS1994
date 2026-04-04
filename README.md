@@ -65,10 +65,10 @@ The steppers in the setup automatically ensure the sum remains exactly `20`.
 
 ## Specials
 
-- `Shield`: Channelled instead of a single trigger. Grants brief invulnerability and destroys objects on direct impact, but loses a small amount of charge (`3%`) per hit. Blocking heavy objects imparts physical feedback (bouncing/rotation). If the charge is completely depleted, a lockout triggers before it can be recharged.
+- `Shield`: Channelled instead of a single trigger. Grants brief invulnerability and destroys objects on direct impact, but loses a tiny amount of charge (`2%`) per hit. Blocking heavy objects imparts physical feedback (bouncing/rotation). If the charge is completely depleted, a lockout triggers before it can be recharged.
 - `Hyperspace`: Hides the ship for a few seconds and then reappears at the safest possible random location.
 - `Disrupter`: Unleashes an expanding shockwave. It destroys bullets, cronies, and UFOs, breaks asteroids, and pushes other players away.
-- `Cloak`: Makes the player invisible to cronies and other targeting systems. If the effect ends while the ship is inside an object, the player dies.
+- `Cloak`: Makes the player invisible to cronies and other targeting systems, lasting up to `9.2s`. The exact remaining time is displayed via the special action bar. If the effect ends while the ship is inside an object, the player dies.
 
 ## Weapon Drops
 
@@ -78,7 +78,8 @@ Starting from `Level 2`, a floating pickup can appear on the field:
 - `Gatling`: Very fast rapid-fire variant of the standard weapon.
 - `Laser`: Continuous beam instead of individual projectiles. Wraps around screen edges.
 - `Mega Destructor` *(rare – ~8% spawn chance)*: Fires a single, massive expanding shockwave that destroys asteroids, cronies, and UFOs but does **not** destroy bullets. Accompanied by heavy camera shake.
-- `Extra Life` *(rare – ~10% spawn chance)*: A glowing heart pickup that grants the collecting player `+1` life. Lives are capped at the initial starting lives `+1` (default: `6`). The bonus life is highlighted in gold in the HUD with a gentle pulse animation.
+- `Extra Life` *(rare – conditional spawn chance)*: A glowing heart pickup that grants the collecting player `+1` life.
+- `Revival` *(rare – conditional 30% spawn chance)*: A glowing mystical item that drops explicitly when at least one player was eliminated. It revives the most recently eliminated player with `3` lives, bringing them back into the game immediately.
 
 The HUD shows a dedicated charge bar for every active weapon. A new pickup replaces the currently equipped special weapon.
 
