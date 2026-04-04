@@ -23,9 +23,10 @@ Local browser arcade game as a tribute to `Comet Busters!` from 1994. The projec
 - `5` lives per player, safe respawns, and local highscore entry with initials.
 - Wrap-around playfield without friction (ships, bullets, particles, and force effects all wrap correctly).
 - Asteroids in `large`, `medium`, `small` with split logic.
+- `46` unique asteroid themes that cycle once all are played. Each level features a different asteroid graphic and name.
 - Level countdown, wave-clear pauses, and changing asteroid themes.
 - Cronies/Smileys as hunting enemies.
-- UFO enemies with zigzag flight and red shots.
+- UFO enemies with zigzag flight and red shots that are always lethal unless blocked by an active shield.
 - Weapon drops: `Rocket`, `Gatling`, `Laser`, `Mega Destructor` (rare).
 - Specials: `Shield`, `Hyperspace`, `Disrupter`, `Cloak`.
 - Optional modes and comfort options:
@@ -73,12 +74,14 @@ The steppers in the setup automatically ensure the sum remains exactly `20`.
 
 Starting from `Level 2`, a floating pickup can appear on the field:
 
-- `Rocket`: Fires a short burst of homing missiles.
+- `Rocket`: Fires a burst of `5` homing missiles with extended lifetime (`7.5s`). Rockets stay in play about `25%` longer than standard bullets.
 - `Gatling`: Very fast rapid-fire variant of the standard weapon.
 - `Laser`: Continuous beam instead of individual projectiles. Wraps around screen edges.
-- `Mega Destructor` *(rare – ~8% spawn chance)*: Fires a single, massive expanding shockwave that clears the entire screen of asteroids, cronies, and UFOs instantly. Accompanied by heavy camera shake.
+- `Mega Destructor` *(rare – ~8% spawn chance)*: Fires a single, massive expanding shockwave that destroys asteroids, cronies, and UFOs but does **not** destroy bullets. Accompanied by heavy camera shake.
 
 The HUD shows a dedicated charge bar for every active weapon. A new pickup replaces the currently equipped special weapon.
+
+All bullet-based weapons apply recoil to the firing ship. Standard shots apply `7` units, Gatling applies `4.5` units, and UFO shots apply `4` units. This creates subtle but noticeable momentum effects during sustained fire.
 
 The `Items` option in the setup panel can be disabled entirely for a pure ships-only experience.
 
@@ -86,15 +89,16 @@ The `Items` option in the setup panel can be disabled entirely for a pure ships-
 
 - Asteroids start as large chunks and split stepwise down to smaller pieces.
 - Destroying asteroids has a chance to spawn Cronies.
-- UFOs start appearing from `Level 4` onwards.
+- UFOs start appearing from `Level 4` onwards. UFOs also experience recoil when firing.
 - Every wave looks for secure spawn locations for asteroids so players aren't instantly overrun.
 - Respawns only occur when a spawn point is clear enough.
+- The game cycles through `46` unique asteroid levels before repeating.
 
 ## Game Modes and Options
 
 - `Asteroid Billiards`: Enables collisions between asteroids. This makes the field significantly more physical and chaotic.
 - `Insanity Mode`: Shots, rockets, and lasers mostly push asteroids around instead of destroying them normally. This creates high-momentum and chain-reaction chaos.
-- `Friendly Fire`: Makes weapon hits between players lethal. If disabled, other players can still be pushed away by projectiles.
+- `Friendly Fire`: Makes player weapon hits between players lethal. If disabled, player-vs-player weapon hits bounce targets away instead, with `20%` stronger non-lethal knockback (`1.2×` boost). UFO shots are always lethal to unshielded players regardless of this setting. Standard bullets are always deadly; rockets and lasers respect the Friendly Fire toggle.
 - `Items Enabled`: Toggles whether weapon drops appear on the field. Disable for a pure, hardcore asteroids experience.
 - `Particle Effects`: Thrusters, explosions, sparks and pickup bursts.
 - `Screen Shake`: Camera shake on larger impacts and explosions.
@@ -248,6 +252,59 @@ Background music is loaded from `assets/audio/music/`. Currently supported forma
 If no music files are found, the game will seamlessly continue without background music.
 
 
+## Asteroid Levels
+
+The game features `46` unique asteroid levels, each with its own themed graphic and name. After Level 46, the cycle repeats from Level 1.
+
+| Level | Theme |
+|-------|-------|
+| 1 | Comets |
+| 2 | DeathStar |
+| 3 | Solar System |
+| 4 | Billiard Ballet |
+| 5 | Inferno |
+| 6 | Nebula Drift |
+| 7 | Golf Genesis |
+| 8 | Barney the Dinosaur |
+| 9 | Alexa Apocalypse |
+| 10 | Rim Resistance |
+| 11 | Star Sacrify |
+| 12 | Cosmic Disc |
+| 13 | Strike Zone |
+| 14 | Thorned Frontier |
+| 15 | Iron Barrage |
+| 16 | Tropical Havoc |
+| 17 | Golden Orbit |
+| 18 | Navigator's Ruin |
+| 19 | Pop Panic |
+| 20 | Salsa Supernova |
+| 21 | Crumble Core |
+| 22 | Galactic Glaze |
+| 23 | Crystal Prophecy |
+| 24 | Frosted Fury |
+| 25 | Petal Storm |
+| 26 | Disco Detonation |
+| 27 | Sugar Rush |
+| 28 | Blossom Barrage |
+| 29 | Disc Overdrive |
+| 30 | Marshmallow Mayhem |
+| 31 | Bounce Blitz |
+| 32 | Arcane Tempest |
+| 33 | Meatball Madness |
+| 34 | Melon Meltdown |
+| 35 | Plasma Protocol |
+| 36 | Pufferfish Peril |
+| 37 | Pumpkin Purge |
+| 38 | Mech Massacre |
+| 39 | Rose Revolution |
+| 40 | Quack Attack |
+| 41 | Blizzard Burst |
+| 42 | Solar Bloom |
+| 43 | Vinyl Vendetta |
+| 44 | Apple Armageddon |
+| 45 | Ocular Onslaught |
+| 46 | Citrus Siege |
+
 ## Persistence
 
 The game saves locally in your browser:
@@ -265,17 +322,17 @@ This means:
 - `index.html`: UI shell, setup panel, overlays, and canvas
 - `main.js`: Binds DOM, settings, audio, input, and the game loop
 - `game_core.js`: Current core game logic
-- `constants.js`: Defaults, specials, tuning, scores, storage keys
+- `constants.js`: Defaults, specials, tuning, scores, storage keys, and all 46 asteroid themes
 - `input.js`: Keyboard and gamepad polling
 - `audio.js`: Loading and playback of sounds and music
 - `storage.js`: Loading/saving settings and highscores via `localStorage`
 - `style.css`: Layout, contextual HUD UI and responsive behavior
 - `i18n.js`: Translation engine and dictionary
-- `assets/textures/`: Ships, asteroids, enemies, and item sprites
+- `assets/textures/`: Ships, asteroids (46 level folders), enemies, and item sprites
 - `assets/audio/`: Sound effects and music
 
 ## Developer Notes
 
 - `game.js` is still in the project but currently not loaded by `index.html`. It serves as an older development baseline.
 - The game is primarily intended for desktop browsers and local multiplayer setups. There are currently no touch controls.
-- As localization was recently introduced, minor inconsistencies in text strings or filenames might still pop up.
+- Shockwaves (Disrupter and Mega Destructor) now use granular flags (`destroyBullets`, `destroyCronies`, `destroyUfos`, `destroyAsteroids`, `pushPlayers`, `affectsOwner`) to precisely control what each shockwave affects.

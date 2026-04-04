@@ -31,6 +31,8 @@ export const SPECIALS = [
 ];
 
 export const ASTEROID_THEMES = [
+  // --- Existing Levels 1–11 (original images, renamed) ---
+  // Level 1
   {
     id: "stone",
     name: "Comets",
@@ -39,29 +41,411 @@ export const ASTEROID_THEMES = [
     rim: "#f9e8c3",
     glow: "rgba(225, 184, 112, 0.12)",
   },
+  // Level 2
   {
     id: "eyeball",
-    name: "Dead Planet",
+    name: "DeathStar",
     fill: "#efe7d5",
     accent: "#f571ff",
     rim: "#8b5a2b",
     glow: "rgba(255, 100, 219, 0.15)",
   },
+  // Level 3
   {
     id: "ice",
-    name: "Cryo Rocks",
+    name: "Solar System",
     fill: "#89b7d3",
     accent: "#e8fbff",
     rim: "#3c799c",
     glow: "rgba(90, 200, 255, 0.16)",
   },
+  // Level 4
   {
     id: "ember",
-    name: "Inferno",
+    name: "Billiard Ballet",
     fill: "#8a4931",
     accent: "#ffcb68",
     rim: "#ffd9a7",
     glow: "rgba(255, 145, 48, 0.14)",
+  },
+  // Level 5
+  {
+    id: "lvl5",
+    name: "Inferno",
+    fill: "#b33d1a",
+    accent: "#ff7a2e",
+    rim: "#ffe5a3",
+    glow: "rgba(255, 110, 30, 0.16)",
+  },
+  // Level 6
+  {
+    id: "lvl6",
+    name: "Nebula Drift",
+    fill: "#4a3477",
+    accent: "#c895ff",
+    rim: "#e8d0ff",
+    glow: "rgba(170, 120, 255, 0.14)",
+  },
+  // Level 7
+  {
+    id: "lvl7",
+    name: "Golf Genesis",
+    fill: "#2d6e3f",
+    accent: "#a4f5a4",
+    rim: "#e0ffd8",
+    glow: "rgba(100, 220, 100, 0.13)",
+  },
+  // Level 8
+  {
+    id: "lvl8",
+    name: "Barney the Dinosaur",
+    fill: "#7a3e9d",
+    accent: "#d98fff",
+    rim: "#f0d0ff",
+    glow: "rgba(180, 100, 255, 0.15)",
+  },
+  // Level 9
+  {
+    id: "lvl9",
+    name: "Alexa Apocalypse",
+    fill: "#2c4e6e",
+    accent: "#5ecfff",
+    rim: "#c5ecff",
+    glow: "rgba(70, 180, 255, 0.14)",
+  },
+  // Level 10
+  {
+    id: "lvl10",
+    name: "Rim Resistance",
+    fill: "#6b5533",
+    accent: "#e8c272",
+    rim: "#fff3d0",
+    glow: "rgba(220, 180, 90, 0.13)",
+  },
+  // Level 11
+  {
+    id: "lvl11",
+    name: "Star Sacrify",
+    fill: "#8c2828",
+    accent: "#ff6b6b",
+    rim: "#ffd0d0",
+    glow: "rgba(255, 80, 80, 0.15)",
+  },
+  // --- New Levels 12–46 (35 new images) ---
+  // Level 12 – CD
+  {
+    id: "cd",
+    name: "Cosmic Disc",
+    fill: "#a0a8b8",
+    accent: "#e4f0ff",
+    rim: "#d0dcec",
+    glow: "rgba(180, 200, 240, 0.13)",
+  },
+  // Level 13 – bowling ball
+  {
+    id: "bowling",
+    name: "Strike Zone",
+    fill: "#1a1a2e",
+    accent: "#ff3d5a",
+    rim: "#cc2244",
+    glow: "rgba(255, 50, 80, 0.14)",
+  },
+  // Level 14 – cactus ball
+  {
+    id: "cactus",
+    name: "Thorned Frontier",
+    fill: "#3d7a3d",
+    accent: "#b8f060",
+    rim: "#e0ffa0",
+    glow: "rgba(140, 220, 60, 0.13)",
+  },
+  // Level 15 – cannonball
+  {
+    id: "cannon",
+    name: "Iron Barrage",
+    fill: "#3a3a3a",
+    accent: "#a0a0a0",
+    rim: "#d0d0d0",
+    glow: "rgba(150, 150, 150, 0.12)",
+  },
+  // Level 16 – coconut
+  {
+    id: "coconut",
+    name: "Tropical Havoc",
+    fill: "#6b4a2a",
+    accent: "#c8a060",
+    rim: "#f5e0b0",
+    glow: "rgba(190, 150, 80, 0.13)",
+  },
+  // Level 17 – coin
+  {
+    id: "coin",
+    name: "Golden Orbit",
+    fill: "#c8a020",
+    accent: "#ffe668",
+    rim: "#fff8c0",
+    glow: "rgba(255, 220, 60, 0.15)",
+  },
+  // Level 18 – compass
+  {
+    id: "compass",
+    name: "Navigator's Ruin",
+    fill: "#b89060",
+    accent: "#f0d8a0",
+    rim: "#fff0d0",
+    glow: "rgba(220, 180, 100, 0.12)",
+  },
+  // Level 19 – balloon
+  {
+    id: "balloon",
+    name: "Pop Panic",
+    fill: "#e03040",
+    accent: "#ff8888",
+    rim: "#ffd0d0",
+    glow: "rgba(255, 60, 80, 0.15)",
+  },
+  // Level 20 – tomato
+  {
+    id: "tomato",
+    name: "Salsa Supernova",
+    fill: "#cc2020",
+    accent: "#ff6040",
+    rim: "#ffa080",
+    glow: "rgba(255, 70, 30, 0.14)",
+  },
+  // Level 21 – cookie
+  {
+    id: "cookie",
+    name: "Crumble Core",
+    fill: "#c8944a",
+    accent: "#e8c888",
+    rim: "#fff0d0",
+    glow: "rgba(200, 160, 80, 0.13)",
+  },
+  // Level 22 – cosmic donut
+  {
+    id: "cosmic_donut",
+    name: "Galactic Glaze",
+    fill: "#e070b0",
+    accent: "#ffb0e0",
+    rim: "#ffe0f0",
+    glow: "rgba(255, 130, 200, 0.15)",
+  },
+  // Level 23 – crystal ball
+  {
+    id: "crystal",
+    name: "Crystal Prophecy",
+    fill: "#6080c0",
+    accent: "#a0c8ff",
+    rim: "#d8ecff",
+    glow: "rgba(120, 170, 255, 0.16)",
+  },
+  // Level 24 – cupcake
+  {
+    id: "cupcake",
+    name: "Frosted Fury",
+    fill: "#e89070",
+    accent: "#ffc0a8",
+    rim: "#ffe8d8",
+    glow: "rgba(255, 160, 120, 0.14)",
+  },
+  // Level 25 – daisy
+  {
+    id: "daisy",
+    name: "Petal Storm",
+    fill: "#f0e040",
+    accent: "#fff890",
+    rim: "#fffce0",
+    glow: "rgba(240, 230, 60, 0.13)",
+  },
+  // Level 26 – disco ball
+  {
+    id: "disco",
+    name: "Disco Detonation",
+    fill: "#c0c0d0",
+    accent: "#e8e8ff",
+    rim: "#f8f8ff",
+    glow: "rgba(200, 200, 255, 0.16)",
+  },
+  // Level 27 – donut
+  {
+    id: "donut",
+    name: "Sugar Rush",
+    fill: "#d8904a",
+    accent: "#f0c080",
+    rim: "#ffe8c0",
+    glow: "rgba(220, 160, 70, 0.13)",
+  },
+  // Level 28 – flower head
+  {
+    id: "flower",
+    name: "Blossom Barrage",
+    fill: "#d05090",
+    accent: "#ff90c0",
+    rim: "#ffd0e8",
+    glow: "rgba(255, 100, 170, 0.14)",
+  },
+  // Level 29 – frisbee
+  {
+    id: "frisbee",
+    name: "Disc Overdrive",
+    fill: "#2080d0",
+    accent: "#60b8ff",
+    rim: "#b0e0ff",
+    glow: "rgba(50, 150, 255, 0.15)",
+  },
+  // Level 30 – marshmallow
+  {
+    id: "marshmallow",
+    name: "Marshmallow Mayhem",
+    fill: "#f0e8e0",
+    accent: "#fff8f0",
+    rim: "#ffffff",
+    glow: "rgba(240, 230, 220, 0.12)",
+  },
+  // Level 31 – rubber ball
+  {
+    id: "rubber_ball",
+    name: "Bounce Blitz",
+    fill: "#d03020",
+    accent: "#ff6050",
+    rim: "#ffa090",
+    glow: "rgba(255, 60, 40, 0.14)",
+  },
+  // Level 32 – magic orb
+  {
+    id: "magic_orb",
+    name: "Arcane Tempest",
+    fill: "#4030a0",
+    accent: "#9080ff",
+    rim: "#c8c0ff",
+    glow: "rgba(120, 100, 255, 0.16)",
+  },
+  // Level 33 – meatball
+  {
+    id: "meatball",
+    name: "Meatball Madness",
+    fill: "#8a4028",
+    accent: "#c87050",
+    rim: "#e8a888",
+    glow: "rgba(180, 90, 50, 0.13)",
+  },
+  // Level 34 – melon
+  {
+    id: "melon",
+    name: "Melon Meltdown",
+    fill: "#308830",
+    accent: "#80e060",
+    rim: "#c0ffa0",
+    glow: "rgba(80, 200, 60, 0.14)",
+  },
+  // Level 35 – plasma orb
+  {
+    id: "plasma",
+    name: "Plasma Protocol",
+    fill: "#3060c0",
+    accent: "#60a0ff",
+    rim: "#a0d0ff",
+    glow: "rgba(60, 130, 255, 0.16)",
+  },
+  // Level 36 – pufferfish
+  {
+    id: "puffer",
+    name: "Pufferfish Peril",
+    fill: "#c8b050",
+    accent: "#f0e080",
+    rim: "#fff8c0",
+    glow: "rgba(220, 190, 60, 0.13)",
+  },
+  // Level 37 – pumpkin
+  {
+    id: "pumpkin",
+    name: "Pumpkin Purge",
+    fill: "#d87020",
+    accent: "#ffa040",
+    rim: "#ffd090",
+    glow: "rgba(240, 130, 30, 0.15)",
+  },
+  // Level 38 – robot head
+  {
+    id: "robot",
+    name: "Mech Massacre",
+    fill: "#607080",
+    accent: "#90b0c8",
+    rim: "#c8dce8",
+    glow: "rgba(100, 140, 180, 0.14)",
+  },
+  // Level 39 – rose bloom
+  {
+    id: "rose",
+    name: "Rose Revolution",
+    fill: "#c0304a",
+    accent: "#ff6880",
+    rim: "#ffb0c0",
+    glow: "rgba(255, 70, 100, 0.15)",
+  },
+  // Level 40 – rubber duck
+  {
+    id: "duck",
+    name: "Quack Attack",
+    fill: "#f0d030",
+    accent: "#fff060",
+    rim: "#fffca0",
+    glow: "rgba(250, 220, 30, 0.14)",
+  },
+  // Level 41 – snowball
+  {
+    id: "snow",
+    name: "Blizzard Burst",
+    fill: "#d8e8f0",
+    accent: "#f0f8ff",
+    rim: "#ffffff",
+    glow: "rgba(200, 230, 255, 0.14)",
+  },
+  // Level 42 – sunflower
+  {
+    id: "sunflower",
+    name: "Solar Bloom",
+    fill: "#e0b020",
+    accent: "#ffe050",
+    rim: "#fff8a0",
+    glow: "rgba(240, 200, 30, 0.14)",
+  },
+  // Level 43 – vinyl record
+  {
+    id: "vinyl",
+    name: "Vinyl Vendetta",
+    fill: "#1a1a1a",
+    accent: "#505060",
+    rim: "#909098",
+    glow: "rgba(80, 80, 100, 0.13)",
+  },
+  // Level 44 – apple
+  {
+    id: "apple",
+    name: "Apple Armageddon",
+    fill: "#c02020",
+    accent: "#ff4040",
+    rim: "#ff9090",
+    glow: "rgba(255, 40, 40, 0.14)",
+  },
+  // Level 45 – eyeball
+  {
+    id: "eyeball_new",
+    name: "Ocular Onslaught",
+    fill: "#e8e0d0",
+    accent: "#e060ff",
+    rim: "#906030",
+    glow: "rgba(230, 80, 255, 0.15)",
+  },
+  // Level 46 – orange
+  {
+    id: "orange",
+    name: "Citrus Siege",
+    fill: "#e08020",
+    accent: "#ffa040",
+    rim: "#ffd090",
+    glow: "rgba(240, 150, 30, 0.14)",
   },
 ];
 

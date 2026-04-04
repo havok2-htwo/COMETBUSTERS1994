@@ -29,7 +29,12 @@ const ITEM_MAX_SPEED = 90;
 const ROCKET_SPEED = 500;
 const ROCKET_HOMING = 260;
 const ROCKET_MAX_SPEED = 620;
-const ROCKET_VOLLEY_SIZE = 4;
+const ROCKET_VOLLEY_SIZE = 5;
+const ROCKET_LIFETIME = 7.5;
+const BULLET_RECOIL = 7;
+const GATLING_RECOIL = 4.5;
+const UFO_BULLET_RECOIL = 4;
+const PLAYER_BOUNCE_BOOST = 1.2;
 const SHIELD_LOCKOUT = 5;
 const GENERIC_RECHARGE = 0.2;
 const ITEM_SPAWN_MIN = 14;
@@ -577,6 +582,7 @@ export class CometBustersGame {
   }
 
   createBullet(source, options = {}) {
+    const hasOption = (key) => Object.prototype.hasOwnProperty.call(options, key);
     const spread = options.spread ?? 0;
     const angle = (options.angle ?? source.angle ?? 0) + spread;
     const heading = vectorFromAngle(angle);
@@ -594,12 +600,12 @@ export class CometBustersGame {
       vy: inheritedVy + heading.y * speed,
       life: BULLET_LIFETIME * (options.lifeMultiplier ?? 1),
       radius: BULLET_RADIUS,
-      ownerId: options.ownerId ?? source.id ?? null,
-      sourceId: options.sourceId ?? source.id ?? null,
+      ownerId: hasOption("ownerId") ? options.ownerId : source.id ?? null,
+      sourceId: hasOption("sourceId") ? options.sourceId : source.id ?? null,
       sourceKind: options.sourceKind ?? source.kind ?? "player",
       color: options.color ?? source.color ?? "#ffffff",
       push: options.push ?? 210,
-      deadly: options.deadly ?? true,
+      deadly: hasOption("deadly") ? options.deadly : source.kind === "ufo" || this.settings.options.friendlyFire,
       dead: false,
     };
   }
@@ -619,7 +625,7 @@ export class CometBustersGame {
       vy: player.vy + heading.y * ROCKET_SPEED,
       angle,
       radius: 7,
-      life: 6,
+      life: ROCKET_LIFETIME,
       armTimer: 0.18,
       color: "#ff9d54",
       dead: false,
@@ -680,6 +686,12 @@ export class CometBustersGame {
       radius: 15,
       dead: false,
     };
+  }
+
+  applyShotRecoil(source, angle, strength) {
+    if (!source || strength <= 0) return;
+    const heading = vectorFromAngle(angle);
+    this.applyImpactAtPoint(source, -heading.x, -heading.y, strength, source.x, source.y);
   }
 
   updatePlayers(deltaSeconds) {
@@ -889,6 +901,12 @@ export class CometBustersGame {
           tint: "rgba(146, 235, 255, 0.95)",
           width: 4,
           damaging: true,
+          destroyBullets: true,
+          destroyCronies: true,
+          destroyUfos: true,
+          destroyAsteroids: true,
+          pushPlayers: true,
+          affectsOwner: false,
         });
         player.specialCharge = 0;
         this.audio.play("disrupter", { volume: 0.18 });
@@ -936,6 +954,12 @@ export class CometBustersGame {
           tint: "rgba(185, 77, 255, 0.95)",
           width: 25,
           damaging: true,
+          destroyBullets: false,
+          destroyCronies: true,
+          destroyUfos: true,
+          destroyAsteroids: true,
+          pushPlayers: true,
+          affectsOwner: false,
         });
         player.weaponCharge = 0;
         this.audio.play("mega_destructor", { volume: 0.5 });
@@ -947,13 +971,15 @@ export class CometBustersGame {
 
     if (player.weaponType === "gatling") {
       if (controls.fire && player.shotCooldown <= 0 && player.weaponCharge > 0) {
+        const spread = rand(-0.045, 0.045);
         this.bullets.push(
           this.createBullet(player, {
-            spread: rand(-0.045, 0.045),
+            spread,
             lifeMultiplier: 1.25,
             push: 220,
           }),
         );
+        this.applyShotRecoil(player, player.angle + spread, GATLING_RECOIL);
         player.shotCooldown = Math.max(0.03, player.stats.bulletCooldown / 3);
         player.weaponCharge = Math.max(0, player.weaponCharge - 0.02166);
         player.flashTimer = 0.06;
@@ -967,7 +993,7 @@ export class CometBustersGame {
 
     if (player.weaponType === "rocket") {
       if (controls.firePressed && player.shotCooldown <= 0 && player.weaponCharge > 0) {
-        const actualVolley = 3; 
+        const actualVolley = ROCKET_VOLLEY_SIZE;
         for (let index = 0; index < actualVolley; index += 1) {
           const spread = actualVolley <= 1 ? 0 : (index - (actualVolley - 1) / 2) * 0.09;
           this.rockets.push(this.createRocket(player, spread, index, actualVolley));
@@ -986,6 +1012,7 @@ export class CometBustersGame {
 
     if (controls.fire && player.shotCooldown <= 0) {
       this.bullets.push(this.createBullet(player));
+      this.applyShotRecoil(player, player.angle, BULLET_RECOIL);
       player.shotCooldown = player.stats.bulletCooldown;
       player.flashTimer = 0.08;
       this.audio.play("player_shot", { volume: 0.12, playbackRate: rand(0.96, 1.04) });
@@ -1104,6 +1131,7 @@ export class CometBustersGame {
             push: 180,
           }),
         );
+        this.applyShotRecoil(ufo, shotAngle, UFO_BULLET_RECOIL);
         ufo.fireTimer = rand(1.1, 2.4);
         this.audio.play("ufo_fire", { volume: 0.08, playbackRate: rand(0.94, 1.04) });
       }
@@ -1139,7 +1167,11 @@ export class CometBustersGame {
       const progress = 1 - Math.max(0, wave.life) / wave.maxLife;
       wave.radius = wave.maxRadius * Math.sin(progress * Math.PI * 0.5);
 
-      if (wave.damaging) {
+      const destroysAsteroids = wave.damaging && (wave.destroyAsteroids ?? true);
+      const destroysCronies = wave.damaging && (wave.destroyCronies ?? true);
+      const destroysUfos = wave.damaging && (wave.destroyUfos ?? true);
+
+      if (destroysAsteroids) {
         for (const asteroid of this.asteroids) {
           if (asteroid.dead) continue;
           const delta = toroidalDistance(wave, asteroid, this.width, this.height);
@@ -1147,6 +1179,9 @@ export class CometBustersGame {
             this.destroyAsteroid(asteroid, wave.ownerId, false);
           }
         }
+      }
+
+      if (destroysCronies) {
         for (const crony of this.cronies) {
           if (crony.dead) continue;
           const delta = toroidalDistance(wave, crony, this.width, this.height);
@@ -1154,6 +1189,9 @@ export class CometBustersGame {
             this.destroyCrony(crony, wave.ownerId);
           }
         }
+      }
+
+      if (destroysUfos) {
         for (const ufo of this.ufos) {
           if (ufo.dead) continue;
           const delta = toroidalDistance(wave, ufo, this.width, this.height);
@@ -1211,53 +1249,70 @@ export class CometBustersGame {
 
   handleShockwaveHits() {
     for (const wave of this.shockwaves) {
-      if (!wave.damaging) continue;
-      for (const bullet of this.bullets) {
-        if (bullet.dead) continue;
-        const delta = toroidalDistance(wave, bullet, this.width, this.height);
-        if (delta.distance >= wave.lastRadius && delta.distance <= wave.radius) {
-          bullet.dead = true;
-          this.spawnSpark(bullet.x, bullet.y, bullet.color);
+      const destroysBullets = wave.damaging && (wave.destroyBullets ?? true);
+      const destroysCronies = wave.damaging && (wave.destroyCronies ?? true);
+      const destroysUfos = wave.damaging && (wave.destroyUfos ?? true);
+      const destroysAsteroids = wave.damaging && (wave.destroyAsteroids ?? true);
+      const pushesPlayers = wave.pushPlayers ?? wave.damaging;
+      const affectsOwner = wave.affectsOwner ?? false;
+
+      if (destroysBullets) {
+        for (const bullet of this.bullets) {
+          if (bullet.dead) continue;
+          const delta = toroidalDistance(wave, bullet, this.width, this.height);
+          if (delta.distance >= wave.lastRadius && delta.distance <= wave.radius) {
+            bullet.dead = true;
+            this.spawnSpark(bullet.x, bullet.y, bullet.color);
+          }
         }
       }
 
-      for (const crony of this.cronies) {
-        if (crony.dead) continue;
-        const delta = toroidalDistance(wave, crony, this.width, this.height);
-        if (delta.distance >= wave.lastRadius && delta.distance <= wave.radius + crony.radius) {
-          this.destroyCrony(crony, wave.ownerId);
+      if (destroysCronies) {
+        for (const crony of this.cronies) {
+          if (crony.dead) continue;
+          const delta = toroidalDistance(wave, crony, this.width, this.height);
+          if (delta.distance >= wave.lastRadius && delta.distance <= wave.radius + crony.radius) {
+            this.destroyCrony(crony, wave.ownerId);
+          }
         }
       }
 
-      for (const ufo of this.ufos) {
-        if (ufo.dead) continue;
-        const delta = toroidalDistance(wave, ufo, this.width, this.height);
-        if (delta.distance >= wave.lastRadius && delta.distance <= wave.radius + ufo.radius) {
-          this.destroyUfo(ufo, wave.ownerId);
+      if (destroysUfos) {
+        for (const ufo of this.ufos) {
+          if (ufo.dead) continue;
+          const delta = toroidalDistance(wave, ufo, this.width, this.height);
+          if (delta.distance >= wave.lastRadius && delta.distance <= wave.radius + ufo.radius) {
+            this.destroyUfo(ufo, wave.ownerId);
+          }
         }
       }
 
-      for (const asteroid of this.asteroids) {
-        if (asteroid.dead) continue;
-        const delta = toroidalDistance(wave, asteroid, this.width, this.height);
-        if (delta.distance >= wave.lastRadius && delta.distance <= wave.radius + asteroid.radius) {
-          const heading = normalizeVector(delta.dx, delta.dy);
-          this.destroyAsteroid(asteroid, wave.ownerId, false, {
-            directionX: heading.x,
-            directionY: heading.y,
-            spread: 0,
-            randomness: [0.087, 0.174],
-          });
+      if (destroysAsteroids) {
+        for (const asteroid of this.asteroids) {
+          if (asteroid.dead) continue;
+          const delta = toroidalDistance(wave, asteroid, this.width, this.height);
+          if (delta.distance >= wave.lastRadius && delta.distance <= wave.radius + asteroid.radius) {
+            const heading = normalizeVector(delta.dx, delta.dy);
+            this.destroyAsteroid(asteroid, wave.ownerId, false, {
+              directionX: heading.x,
+              directionY: heading.y,
+              spread: 0,
+              randomness: [0.087, 0.174],
+            });
+          }
         }
       }
 
-      for (const player of this.players) {
-        if (!this.isPlayerSolid(player) || player.id === wave.ownerId) continue;
-        const delta = toroidalDistance(wave, player, this.width, this.height);
-        if (delta.distance >= wave.lastRadius && delta.distance <= wave.radius + player.radius) {
-          const heading = normalizeVector(delta.dx, delta.dy);
-          const strength = 1200 * Math.max(0, 1 - delta.distance / wave.maxRadius);
-          this.applyImpactAtPoint(player, heading.x, heading.y, strength, player.x, player.y);
+      if (pushesPlayers) {
+        for (const player of this.players) {
+          if (!this.isPlayerSolid(player)) continue;
+          if (!affectsOwner && player.id === wave.ownerId) continue;
+          const delta = toroidalDistance(wave, player, this.width, this.height);
+          if (delta.distance >= wave.lastRadius && delta.distance <= wave.radius + player.radius) {
+            const heading = normalizeVector(delta.dx, delta.dy);
+            const strength = 1200 * Math.max(0, 1 - delta.distance / wave.maxRadius);
+            this.applyImpactAtPoint(player, heading.x, heading.y, strength, player.x, player.y);
+          }
         }
       }
     }
@@ -1317,7 +1372,17 @@ export class CometBustersGame {
         const delta = toroidalDistance(bullet, player, this.width, this.height);
         if (delta.distance <= bullet.radius + player.radius) {
           bullet.dead = true;
-          this.handlePlayerWeaponHit(player, bullet.ownerId, bullet.vx, bullet.vy, bullet.x, bullet.y, bullet.push, "bullet");
+          this.handlePlayerWeaponHit(
+            player,
+            bullet.ownerId,
+            bullet.vx,
+            bullet.vy,
+            bullet.x,
+            bullet.y,
+            bullet.push,
+            "bullet",
+            bullet.deadly,
+          );
           break;
         }
       }
@@ -1380,7 +1445,17 @@ export class CometBustersGame {
         const delta = toroidalDistance(rocket, player, this.width, this.height);
         if (delta.distance <= rocket.radius + player.radius) {
           rocket.dead = true;
-          this.handlePlayerWeaponHit(player, rocket.ownerId, rocket.vx, rocket.vy, rocket.x, rocket.y, 340, "rocket");
+          this.handlePlayerWeaponHit(
+            player,
+            rocket.ownerId,
+            rocket.vx,
+            rocket.vy,
+            rocket.x,
+            rocket.y,
+            340,
+            "rocket",
+            this.settings.options.friendlyFire,
+          );
           this.spawnExplosion(rocket.x, rocket.y, "#ff8e52", 1.1, rocket.vx, rocket.vy, true);
           break;
         }
@@ -1428,24 +1503,36 @@ export class CometBustersGame {
         if (!this.isPlayerSolid(player) || player.id === owner.id) continue;
         const hit = segmentCircleHit(beam.start, beam.end, player, this.width, this.height);
         if (!hit.hit) continue;
-        this.handlePlayerWeaponHit(player, owner.id, direction.x * 400, direction.y * 400, hit.x, hit.y, 180, "laser");
+        this.handlePlayerWeaponHit(
+          player,
+          owner.id,
+          direction.x * 400,
+          direction.y * 400,
+          hit.x,
+          hit.y,
+          180,
+          "laser",
+          this.settings.options.friendlyFire,
+        );
       }
     }
   }
 
-  handlePlayerWeaponHit(player, attackerId, vx, vy, hitX, hitY, pushStrength, sourceType) {
+  handlePlayerWeaponHit(player, attackerId, vx, vy, hitX, hitY, pushStrength, sourceType, canKill = false) {
     const direction = normalizeVector(vx, vy);
-    const canKill = attackerId == null ? true : this.settings.options.friendlyFire;
+    const isPlayerBounce =
+      attackerId != null && attackerId !== player.id && this.players.some((entry) => entry.id === attackerId);
+    const bounceMultiplier = isPlayerBounce ? PLAYER_BOUNCE_BOOST : 1;
 
     if (player.shieldActive || player.invulnerableTimer > 0) {
-      this.applyImpactAtPoint(player, direction.x, direction.y, pushStrength * 0.3, hitX, hitY);
+      this.applyImpactAtPoint(player, direction.x, direction.y, pushStrength * 0.3 * bounceMultiplier, hitX, hitY);
       this.spawnSpark(hitX, hitY, player.color);
       this.audio.play("player_hit_push", { volume: 0.35, playbackRate: rand(0.9, 1.1) });
       return;
     }
 
     if (!canKill) {
-      this.applyImpactAtPoint(player, direction.x, direction.y, pushStrength * 2.85, hitX, hitY);
+      this.applyImpactAtPoint(player, direction.x, direction.y, pushStrength * 2.85 * bounceMultiplier, hitX, hitY);
       this.spawnSpark(hitX, hitY, player.color);
       this.audio.play("player_hit_push", { volume: 0.35, playbackRate: rand(0.9, 1.1) });
       return;
@@ -2402,7 +2489,7 @@ export class CometBustersGame {
         ctx.save();
         ctx.translate(x, y);
         ctx.rotate(asteroid.angle);
-        const levelClass = ((this.level - 1) % 11) + 1;
+        const levelClass = ((this.level - 1) % 46) + 1;
         const sizeClass = asteroid.size === "large" ? "L" : (asteroid.size === "medium" ? "M" : "S");
         const tex = this.textures && this.textures[`asteroid/level_${levelClass}/${sizeClass}`];
         if (tex && tex.complete && tex.naturalWidth > 1) {

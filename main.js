@@ -69,7 +69,7 @@ const textures = {};
     "ufo/ufo", "crony/crony",
     "items/rocket", "items/gatling", "items/laser", "items/mega_destructor"
   ];
-  for (let i = 1; i <= 11; i++) {
+  for (let i = 1; i <= 46; i++) {
     paths.push(`asteroid/level_${i}/L`);
     paths.push(`asteroid/level_${i}/M`);
     paths.push(`asteroid/level_${i}/S`);
