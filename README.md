@@ -27,7 +27,7 @@ Local browser arcade game as a tribute to `Comet Busters!` from 1994. The projec
 - Level countdown, wave-clear pauses, and changing asteroid themes.
 - Cronies/Smileys as hunting enemies.
 - UFO enemies with zigzag flight and red shots that are always lethal unless blocked by an active shield.
-- Weapon drops: `Rocket`, `Gatling`, `Laser`, `Mega Destructor` (rare).
+- Weapon drops: `Rocket`, `Gatling`, `Laser`, `Mega Destructor` (rare), `Extra Life` (rare).
 - Specials: `Shield`, `Hyperspace`, `Disrupter`, `Cloak`.
 - Optional modes and comfort options:
   - `Asteroid Billiards`
@@ -78,6 +78,7 @@ Starting from `Level 2`, a floating pickup can appear on the field:
 - `Gatling`: Very fast rapid-fire variant of the standard weapon.
 - `Laser`: Continuous beam instead of individual projectiles. Wraps around screen edges.
 - `Mega Destructor` *(rare – ~8% spawn chance)*: Fires a single, massive expanding shockwave that destroys asteroids, cronies, and UFOs but does **not** destroy bullets. Accompanied by heavy camera shake.
+- `Extra Life` *(rare – ~10% spawn chance)*: A glowing heart pickup that grants the collecting player `+1` life. Lives are capped at the initial starting lives `+1` (default: `6`). The bonus life is highlighted in gold in the HUD with a gentle pulse animation.
 
 The HUD shows a dedicated charge bar for every active weapon. A new pickup replaces the currently equipped special weapon.
 

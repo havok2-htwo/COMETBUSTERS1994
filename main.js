@@ -67,7 +67,7 @@ const textures = {};
   const paths = [
     "spaceship/player1", "spaceship/player2", "spaceship/player3", "spaceship/player4",
     "ufo/ufo", "crony/crony",
-    "items/rocket", "items/gatling", "items/laser", "items/mega_destructor"
+    "items/rocket", "items/gatling", "items/laser", "items/mega_destructor", "items/extra_life"
   ];
   for (let i = 1; i <= 46; i++) {
     paths.push(`asteroid/level_${i}/L`);

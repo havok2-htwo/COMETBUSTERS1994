@@ -85,6 +85,7 @@ export const LOCALE_DATA = {
     "item.gatling.label": "Gatling",
     "item.laser.label": "Laser",
     "item.shield.label": "Shield",
+    "item.extra_life.label": "Extra Life",
 
     "game.wave": "WAVE",
     "game.start": "START",
@@ -182,6 +183,7 @@ export const LOCALE_DATA = {
     "item.gatling.label": "Gatling",
     "item.laser.label": "Laser",
     "item.shield.label": "Shield",
+    "item.extra_life.label": "Extraleben",
 
     "game.wave": "WELLE",
     "game.start": "START",
@@ -279,6 +281,7 @@ export const LOCALE_DATA = {
     "item.gatling.label": "Gatling",
     "item.laser.label": "Laser",
     "item.shield.label": "Bouclier",
+    "item.extra_life.label": "Vie Extra",
 
     "game.wave": "VAGUE",
     "game.start": "DÉMARRER",
@@ -376,6 +379,7 @@ export const LOCALE_DATA = {
     "item.gatling.label": "Metralleta",
     "item.laser.label": "Láser",
     "item.shield.label": "Escudo",
+    "item.extra_life.label": "Vida Extra",
 
     "game.wave": "OLA",
     "game.start": "INICIO",
@@ -473,6 +477,7 @@ export const LOCALE_DATA = {
     "item.gatling.label": "Gatling",
     "item.laser.label": "Laser",
     "item.shield.label": "Scudo",
+    "item.extra_life.label": "Vita Extra",
 
     "game.wave": "ONDATA",
     "game.start": "AVVIO",

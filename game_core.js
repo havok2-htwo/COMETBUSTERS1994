@@ -5,6 +5,7 @@ import {
   BULLET_RADIUS,
   CRONY_RADIUS,
   ITEM_TYPES,
+  PLAYER_START_LIVES,
   MAX_PLAYERS,
   PLAYER_RADIUS,
   SCORE_VALUES,
@@ -1640,10 +1641,17 @@ export class CometBustersGame {
         const delta = toroidalDistance(item, player, this.width, this.height);
         if (delta.distance <= item.radius + player.radius) {
           item.dead = true;
-          player.weaponType = item.type;
-          player.weaponCharge = 2;
-          player.weaponActiveTimer = 0;
-          player.weaponLatchTimer = 0;
+          if (item.type === "extra_life") {
+            const maxLives = PLAYER_START_LIVES + 1;
+            if (player.lives < maxLives) {
+              player.lives += 1;
+            }
+          } else {
+            player.weaponType = item.type;
+            player.weaponCharge = 2;
+            player.weaponActiveTimer = 0;
+            player.weaponLatchTimer = 0;
+          }
           this.spawnBurst(item.x, item.y, this.getItemColor(item.type), 16, 140, 0.8, item.vx, item.vy);
           this.floatingTexts.push({
             id: makeId("weapon"),
@@ -2165,10 +2173,16 @@ export class CometBustersGame {
       return;
     }
 
-    const standardItems = ITEM_TYPES.filter(t => t.id !== "mega_destructor");
-    const type = Math.random() < 0.08 
-      ? "mega_destructor" 
-      : standardItems[randInt(0, standardItems.length - 1)].id;
+    const standardItems = ITEM_TYPES.filter(t => t.id !== "mega_destructor" && t.id !== "extra_life");
+    const roll = Math.random();
+    let type;
+    if (roll < 0.08) {
+      type = "mega_destructor";
+    } else if (roll < 0.18) {
+      type = "extra_life";
+    } else {
+      type = standardItems[randInt(0, standardItems.length - 1)].id;
+    }
     const position = this.findSafeLocation(40);
     this.items.push(this.createItem(type, position.x, position.y));
     this.itemSpawnTimer = rand(ITEM_SPAWN_MIN, ITEM_SPAWN_MAX);
@@ -2801,7 +2815,15 @@ export class CometBustersGame {
       const step = 18;
       for (let life = 0; life < player.lives; life += 1) {
         const shipX = corner.align === "left" ? corner.x + life * step : corner.x - life * step;
-        this.drawMiniShip(ctx, shipX, corner.y + 34, player.color, corner.align === "left" ? 1 : -1);
+        const isBonusLife = life >= PLAYER_START_LIVES;
+        if (isBonusLife) {
+          const pulse = 0.7 + Math.abs(Math.sin(this.clock * 4)) * 0.3;
+          ctx.globalAlpha = pulse;
+          this.drawMiniShip(ctx, shipX, corner.y + 34, "#ffd700", corner.align === "left" ? 1 : -1);
+          ctx.globalAlpha = 1;
+        } else {
+          this.drawMiniShip(ctx, shipX, corner.y + 34, player.color, corner.align === "left" ? 1 : -1);
+        }
       }
 
       ctx.font = '11px "Lucida Console", "Courier New", monospace';
